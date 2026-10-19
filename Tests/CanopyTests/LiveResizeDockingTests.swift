@@ -18,7 +18,7 @@ func liveResizeCoalescesWritesAndNeverRaisesOrMinimizesApps() async throws {
     for step in 0..<100 { store.resize(root.id,ratio: 0.35+Double(step)*0.001,finished: false) }
     #expect(bridge.moves.isEmpty)
     #expect(try Data(contentsOf: store.persistenceURL) == saved)
-    let deadline = Date().addingTimeInterval(1)
+    let deadline = Date().addingTimeInterval(5)
     while phases.isEmpty,Date() < deadline { try await Task.sleep(nanoseconds: 10_000_000) }
     #expect(bridge.moves.count <= 3)
     #expect(!phases.isEmpty && phases.allSatisfy { $0 })

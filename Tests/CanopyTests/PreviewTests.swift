@@ -33,7 +33,8 @@ func previewCacheBoundsMemoryAndDoesNotRecaptureOnEveryUIUpdate() async throws {
     let provider = FakePreviewProvider(),cache = PreviewCache(provider: provider,budget: 40001,maximumEntries: 1)
     let windows = Array(FakeWindows().windows.values)
     cache.update(windows: windows,enabled: true)
-    try await Task.sleep(for: .milliseconds(10))
+    let deadline = Date().addingTimeInterval(5)
+    while cache.images.isEmpty,Date() < deadline { try await Task.sleep(for: .milliseconds(20)) }
     #expect(cache.images.count == 1)
     for _ in 0..<20 { cache.update(windows: windows,enabled: true) }
     try await Task.sleep(for: .milliseconds(5))

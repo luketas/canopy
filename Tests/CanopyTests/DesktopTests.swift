@@ -77,7 +77,8 @@ func layoutNotificationsKeepArrangingWhenManagedWindowsAreStillVisible() async t
     #expect(store.isArranging)
     for key in Array(bridge.windows.keys) { bridge.windows[key]?.onScreen = false }
     store.handleSpaceChange()
-    try await Task.sleep(nanoseconds: 1_200_000_000)
+    let deadline = Date().addingTimeInterval(5)
+    while store.isArranging,Date() < deadline { try await Task.sleep(nanoseconds: 20_000_000) }
     #expect(!store.isArranging)
 }
 

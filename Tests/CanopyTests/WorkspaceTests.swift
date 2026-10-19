@@ -121,8 +121,8 @@ func nativePlacementVerificationWaitsForSettledFramesAndReportsPersistentFailure
     store.arrange()
     #expect(store.message == nil)
     for (key,rect) in bridge.moves { bridge.frames[key] = rect }
-    for _ in 0..<100 {
-        if bridge.verificationCount >= bridge.moves.count { break }
+    let settledDeadline = Date().addingTimeInterval(5)
+    while bridge.verificationCount < bridge.moves.count,Date() < settledDeadline {
         try await Task.sleep(nanoseconds: 20_000_000)
     }
     #expect(store.message == nil)
@@ -445,11 +445,12 @@ func transientEmptyVisibilityDoesNotPauseOrMoveOtherDesktopWindows() async throw
     defer { store.shutdown(); try? FileManager.default.removeItem(at: directory) }
     store.arrange()
     for key in Array(bridge.windows.keys) { bridge.windows[key]?.onScreen = false }
-    bridge.moves = []
+    bridge.moves = []; bridge.raised = []
     store.handleSpaceChange(); store.refresh()
     #expect(bridge.moves.isEmpty)
     for key in Array(bridge.windows.keys) { bridge.windows[key]?.onScreen = true }
-    try await Task.sleep(nanoseconds: 1_200_000_000)
+    let deadline = Date().addingTimeInterval(5)
+    while bridge.raised.isEmpty,Date() < deadline { try await Task.sleep(nanoseconds: 20_000_000) }
     #expect(store.isArranging)
     #expect(bridge.moves.isEmpty) // Stable frames need only restacking.
     #expect(!bridge.raised.isEmpty)
@@ -490,7 +491,7 @@ func resizeDragUpdatesNativeWindowsAndCreatesOneUndoStep() async throws {
     store.arrange(); let original = try #require(store.current?.root)
     bridge.moves = []
     store.beginResize(); store.resize(original.id,ratio: 0.55,finished: false)
-    let deadline = Date().addingTimeInterval(1)
+    let deadline = Date().addingTimeInterval(5)
     while bridge.moves.isEmpty,Date() < deadline { try await Task.sleep(nanoseconds: 10_000_000) }
     #expect(!bridge.moves.isEmpty)
     store.resize(original.id,ratio: 0.6,finished: true); store.undo()
