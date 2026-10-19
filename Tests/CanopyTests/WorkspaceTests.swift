@@ -129,7 +129,10 @@ func nativePlacementVerificationWaitsForSettledFramesAndReportsPersistentFailure
     #expect(bridge.verificationCount >= bridge.moves.count)
     store.beginResize()
     store.resize(store.current!.root!.id,ratio: 0.4,finished: true)
-    try await Task.sleep(nanoseconds: 1_000_000_000)
+    let verificationDeadline = Date().addingTimeInterval(5)
+    while store.message == nil,Date() < verificationDeadline {
+        try await Task.sleep(nanoseconds: 20_000_000)
+    }
     #expect(store.message?.contains("previous layout") == true)
     #expect(store.isArranging)
     #expect(store.hasWindowsToRestore)
@@ -147,7 +150,12 @@ func rejectedResizeRestoresTheBaselineAndRemovesDesktopControls() async throws {
     store.onPause = { controlsVisible = false }
     store.arrange()
     #expect(controlsVisible)
-    try await Task.sleep(nanoseconds: 2_000_000_000)
+    // Native verification retries asynchronously. A fixed sleep can wake
+    // before its MainActor task on a loaded CI host; wait for the actual pause.
+    let restoreDeadline = Date().addingTimeInterval(5)
+    while store.isArranging,Date() < restoreDeadline {
+        try await Task.sleep(nanoseconds: 20_000_000)
+    }
     #expect(!controlsVisible)
     #expect(!store.isArranging)
     #expect(bridge.frames == baseline)
