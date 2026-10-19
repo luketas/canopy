@@ -1,0 +1,177 @@
+{
+  "version": "0.7.0",
+  "build": 14,
+  "stage": "development",
+  "date": "2026-10-19",
+  "automated": {
+    "xctest": 33,
+    "swiftTesting": 95,
+    "passed": 128
+  },
+  "nativeResize": {
+    "geometryUpdates": 25,
+    "nativeWindowCount": 2,
+    "workspaceBackgroundOrdersDuringResize": 0
+  },
+  "nativeMoves": [
+    {
+      "actual": [
+        8,
+        70,
+        1571,
+        1362
+      ],
+      "bundle": "com.github.GitHubClient",
+      "requested": [
+        8,
+        70,
+        1571,
+        1362
+      ],
+      "results": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "actual": [
+        1587,
+        70,
+        1845,
+        1362
+      ],
+      "bundle": "com.apple.finder",
+      "requested": [
+        1587,
+        70,
+        1845,
+        1362
+      ],
+      "results": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "actual": [
+        8,
+        70,
+        1571,
+        677
+      ],
+      "bundle": "com.google.Chrome",
+      "requested": [
+        8,
+        70,
+        1571,
+        677
+      ],
+      "results": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "actual": [
+        8,
+        755,
+        1571,
+        677
+      ],
+      "bundle": "com.github.GitHubClient",
+      "requested": [
+        8,
+        755,
+        1571,
+        677
+      ],
+      "results": [
+        0,
+        0,
+        0
+      ]
+    }
+  ],
+  "physicalDocking": {
+    "initialUserVerdict": "No preview or docking",
+    "correctedUserVerdict": "Preview and docking work",
+    "correction": "Use original WindowServer event coordinates rather than latest cursor position; floating windows do not require Option.",
+    "crossGridUserVerdict": "Both work (Obsidian and ChatGPT)",
+    "crossGridCorrection": "Do not reject a native visible source merely because it belongs to another Canopy grid.",
+    "latestGrid": [
+      "horizontal",
+      [
+        "vertical",
+        [
+          "horizontal",
+          [
+            "Google Chrome"
+          ],
+          [
+            "ChatGPT"
+          ]
+        ],
+        [
+          "GitHub Desktop"
+        ]
+      ],
+      [
+        "vertical",
+        [
+          "horizontal",
+          [
+            "Muse"
+          ],
+          [
+            "Finder"
+          ]
+        ],
+        [
+          "Obsidian"
+        ]
+      ]
+    ]
+  },
+  "testGrid": {
+    "axis": "horizontal",
+    "ratio": 0.4600078216481265,
+    "children": [
+      {
+        "axis": "vertical",
+        "ratio": 0.5,
+        "children": [
+          {
+            "apps": [
+              "Google Chrome"
+            ],
+            "empty": false
+          },
+          {
+            "apps": [
+              "GitHub Desktop"
+            ],
+            "empty": false
+          }
+        ]
+      },
+      {
+        "apps": [
+          "Finder"
+        ],
+        "empty": false
+      }
+    ]
+  },
+  "limits": [
+    "No frame-by-frame video or subjective no-blink certification.",
+    "Physical multiple displays unverified.",
+    "Control tool cannot move native title bars; user performed docking check."
+  ],
+  "developmentRestore": {
+    "firstAttemptRemaining": 1,
+    "retrySucceeded": true
+  }
+}

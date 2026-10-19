@@ -1,0 +1,287 @@
+{
+  "schema": 1,
+  "date": "2026-10-18",
+  "build": "0.4.0 (10) debug",
+  "automated": {
+    "total": 114,
+    "xctest": 33,
+    "swiftTesting": 81
+  },
+  "nativeTests": {
+    "fourColumns": true,
+    "threeColumnsWithStack": true,
+    "ownColumnMenu": true,
+    "columnHeaderDrag": true,
+    "emptyColumnReturnDragAfterFix": true,
+    "desktopSwitchesAccessibility": 10,
+    "desktopSwitchesPhysical": 6,
+    "editorReopenedFromStrip": true
+  },
+  "nativeFrameSamples": [
+    {
+      "actual": [
+        8,
+        70,
+        960,
+        1362
+      ],
+      "bundle": "com.github.GitHubClient",
+      "requested": [
+        8,
+        70,
+        960,
+        1362
+      ],
+      "results": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "actual": [
+        976,
+        70,
+        813,
+        1362
+      ],
+      "bundle": "net.whatsapp.WhatsApp",
+      "requested": [
+        976,
+        70,
+        813,
+        1362
+      ],
+      "results": [
+        0,
+        -25204,
+        0
+      ]
+    },
+    {
+      "actual": [
+        1797,
+        70,
+        723,
+        1362
+      ],
+      "bundle": "com.apple.systempreferences",
+      "requested": [
+        1797,
+        70,
+        813,
+        1362
+      ],
+      "results": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "actual": [
+        2619,
+        70,
+        813,
+        1362
+      ],
+      "bundle": "com.google.Chrome",
+      "requested": [
+        2619,
+        70,
+        813,
+        1362
+      ],
+      "results": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "actual": [
+        8,
+        70,
+        960,
+        677
+      ],
+      "bundle": "com.github.GitHubClient",
+      "requested": [
+        8,
+        70,
+        960,
+        677
+      ],
+      "results": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "actual": [
+        8,
+        755,
+        960,
+        677
+      ],
+      "bundle": "com.google.Chrome",
+      "requested": [
+        8,
+        755,
+        960,
+        677
+      ],
+      "results": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "actual": [
+        8,
+        70,
+        960,
+        1362
+      ],
+      "bundle": "com.github.GitHubClient",
+      "requested": [
+        8,
+        70,
+        960,
+        1362
+      ],
+      "results": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "actual": [
+        2619,
+        70,
+        813,
+        1362
+      ],
+      "bundle": "com.google.Chrome",
+      "requested": [
+        2619,
+        70,
+        813,
+        1362
+      ],
+      "results": [
+        0,
+        0,
+        0
+      ]
+    }
+  ],
+  "captureEvidence": "Fresh native CUA screenshots observed in task; no saved screenshot files.",
+  "limitations": [
+    "Physical multiple displays unverified",
+    "Intermediate animation frames not independently recorded",
+    "Native minimum widths cannot make arbitrary overcrowded layouts fit"
+  ],
+  "restoration": [
+    {
+      "bundle": "com.apple.finder",
+      "expected": [
+        2423,
+        66,
+        1009,
+        1366
+      ],
+      "actual": [
+        2423,
+        66,
+        1009,
+        1366
+      ],
+      "matched": true
+    },
+    {
+      "bundle": "com.github.GitHubClient",
+      "expected": [
+        1298,
+        87,
+        1277,
+        734
+      ],
+      "actual": [
+        1298,
+        87,
+        1277,
+        734
+      ],
+      "matched": true
+    },
+    {
+      "bundle": "com.google.Chrome",
+      "expected": [
+        257,
+        30,
+        2562,
+        1326
+      ],
+      "actual": [
+        257,
+        30,
+        2562,
+        1326
+      ],
+      "matched": true
+    },
+    {
+      "bundle": "com.meta.endo",
+      "expected": [
+        1753,
+        340,
+        1200,
+        800
+      ],
+      "actual": [
+        1753,
+        340,
+        1200,
+        800
+      ],
+      "matched": true
+    },
+    {
+      "bundle": "com.apple.systempreferences",
+      "expected": [
+        397,
+        267,
+        723,
+        611
+      ],
+      "actual": [
+        397,
+        267,
+        723,
+        611
+      ],
+      "matched": true
+    },
+    {
+      "bundle": "net.whatsapp.WhatsApp",
+      "expected": [
+        1230,
+        139,
+        2031,
+        1175
+      ],
+      "actual": [
+        1230,
+        139,
+        2031,
+        1175
+      ],
+      "matched": true
+    }
+  ],
+  "remainingEarlierRecoveryEntries": 2
+}

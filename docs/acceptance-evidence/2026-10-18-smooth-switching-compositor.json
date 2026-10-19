@@ -1,0 +1,162 @@
+{
+  "version": "0.5.0",
+  "build": 11,
+  "automatedTests": 124,
+  "screenRecordingGrantVerified": true,
+  "nativeCompositorKeyboardSwitches": 6,
+  "events": [
+    {
+      "event": "cancelled",
+      "time": 1156394.7039725417
+    },
+    {
+      "event": "cancelled",
+      "time": 1156395.1034680416
+    },
+    {
+      "event": "cancelled",
+      "time": 1156395.351789
+    },
+    {
+      "event": "capture-started",
+      "time": 1156397.6640557083
+    },
+    {
+      "event": "snapshot-presented",
+      "time": 1156397.9726682918
+    },
+    {
+      "event": "layout-applied",
+      "time": 1156398.4938325002
+    },
+    {
+      "event": "windows-settled",
+      "time": 1156398.9053249168
+    },
+    {
+      "event": "finished",
+      "time": 1156399.170716125
+    },
+    {
+      "event": "capture-started",
+      "time": 1156425.62251225
+    },
+    {
+      "event": "snapshot-presented",
+      "time": 1156425.786310375
+    },
+    {
+      "event": "layout-applied",
+      "time": 1156426.4724242918
+    },
+    {
+      "event": "windows-settled",
+      "time": 1156426.852030375
+    },
+    {
+      "event": "finished",
+      "time": 1156427.0909545834
+    },
+    {
+      "event": "capture-started",
+      "time": 1156427.1068299168
+    },
+    {
+      "event": "snapshot-presented",
+      "time": 1156427.2668453334
+    },
+    {
+      "event": "layout-applied",
+      "time": 1156427.5388867918
+    },
+    {
+      "event": "windows-settled",
+      "time": 1156427.9414829584
+    },
+    {
+      "event": "finished",
+      "time": 1156428.2306627084
+    },
+    {
+      "event": "capture-started",
+      "time": 1156428.2904037083
+    },
+    {
+      "event": "snapshot-presented",
+      "time": 1156428.4565552084
+    },
+    {
+      "event": "layout-applied",
+      "time": 1156428.771177375
+    },
+    {
+      "event": "windows-settled",
+      "time": 1156429.2303137917
+    },
+    {
+      "event": "finished",
+      "time": 1156429.4861165835
+    },
+    {
+      "event": "capture-started",
+      "time": 1156429.6519804168
+    },
+    {
+      "event": "snapshot-presented",
+      "time": 1156429.8214945835
+    },
+    {
+      "event": "layout-applied",
+      "time": 1156430.1047702502
+    },
+    {
+      "event": "windows-settled",
+      "time": 1156430.5414990834
+    },
+    {
+      "event": "finished",
+      "time": 1156430.8225730418
+    },
+    {
+      "event": "capture-started",
+      "time": 1156430.9583426667
+    },
+    {
+      "event": "snapshot-presented",
+      "time": 1156431.1379054168
+    },
+    {
+      "event": "layout-applied",
+      "time": 1156431.4435934585
+    },
+    {
+      "event": "windows-settled",
+      "time": 1156431.855304
+    },
+    {
+      "event": "finished",
+      "time": 1156432.1212368335
+    },
+    {
+      "event": "capture-started",
+      "time": 1156432.2586564168
+    },
+    {
+      "event": "snapshot-presented",
+      "time": 1156432.4211147083
+    },
+    {
+      "event": "layout-applied",
+      "time": 1156432.689756375
+    },
+    {
+      "event": "windows-settled",
+      "time": 1156433.0770179168
+    },
+    {
+      "event": "finished",
+      "time": 1156433.3825967084
+    }
+  ],
+  "physicalBackgroundShortcutVerification": "pending user response"
+}

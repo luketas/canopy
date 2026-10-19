@@ -1,0 +1,24 @@
+name: macOS build and tests
+on:
+  push:
+  pull_request:
+permissions:
+  contents: read
+jobs:
+  test:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Toolchain
+        run: swift --version
+      - name: Layout and workspace tests
+        run: swift test
+      - name: Build local release bundle
+        run: bash scripts/release.sh
+      - uses: actions/upload-artifact@v4
+        with:
+          name: Canopy-macos-universal
+          path: |
+            dist/Canopy-*.zip
+            dist/Canopy-*-source.tar.gz
+            dist/SHA256SUMS

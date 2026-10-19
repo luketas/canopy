@@ -1,0 +1,149 @@
+{
+  "date": "2026-10-18",
+  "version": "0.2.3",
+  "environment": {
+    "macOS": "26.2",
+    "displayPoints": [
+      3440,
+      1440
+    ],
+    "inspectorPoints": [
+      1160,
+      760
+    ]
+  },
+  "automated": {
+    "XCTest": 33,
+    "SwiftTesting": 61,
+    "total": 94,
+    "result": "pass"
+  },
+  "physicalMouseEditorChecks": {
+    "sidebarToCenterTabs": true,
+    "tabHeaderTearOutToEdge": true,
+    "cardBodyDockingWhileActive": true,
+    "splitWithinTabGroup": true,
+    "dragOneStepUndoRedo": true,
+    "doubleClickFocusReturnFromEverything": true,
+    "seamUpdatesNativeWindowsDuringDrag": true,
+    "rejectedEditRestoresPriorLayoutAndKeepsArranging": true,
+    "subsequentResizeClampsToDemonstratedMinimum": true,
+    "finderInputAfterTabEditing": true
+  },
+  "identity": {
+    "directOptionalRuntimeSPI": "_AXUIElementGetWindow",
+    "fallback": "unique exact bounds",
+    "duplicateAXReferencesMerged": true,
+    "newMuseMainDistinguishedFromObsoleteOnboarding": true,
+    "manualBackedUpRecoveryMetadataRepair": true,
+    "independentMuseRestoredScreenshotPoints": [
+      1200,
+      800
+    ]
+  },
+  "closure": {
+    "closedFinderAbsentFromGridAndRecoveryJournal": true,
+    "remainingAppsExactRestore": [
+      {
+        "bundle": "com.github.GitHubClient",
+        "nativeID": 140,
+        "original": [
+          1298,
+          87,
+          1277,
+          734
+        ],
+        "restored": [
+          1298,
+          87,
+          1277,
+          734
+        ],
+        "exactMatch": true
+      },
+      {
+        "bundle": "com.google.Chrome",
+        "nativeID": 186,
+        "original": [
+          31,
+          37,
+          2562,
+          1326
+        ],
+        "restored": [
+          31,
+          37,
+          2562,
+          1326
+        ],
+        "exactMatch": true
+      },
+      {
+        "bundle": "com.meta.endo",
+        "nativeID": 17688,
+        "original": [
+          1753,
+          340,
+          1200,
+          800
+        ],
+        "restored": [
+          1753,
+          340,
+          1200,
+          800
+        ],
+        "exactMatch": true
+      },
+      {
+        "bundle": "com.apple.systempreferences",
+        "nativeID": 17614,
+        "original": [
+          397,
+          267,
+          723,
+          611
+        ],
+        "restored": [
+          397,
+          267,
+          723,
+          611
+        ],
+        "exactMatch": true
+      },
+      {
+        "bundle": "net.whatsapp.WhatsApp",
+        "nativeID": 7752,
+        "original": [
+          1230,
+          139,
+          2031,
+          1175
+        ],
+        "restored": [
+          1230,
+          139,
+          2031,
+          1175
+        ],
+        "exactMatch": true
+      }
+    ],
+    "staleFailureBannerDiscovered": true,
+    "lateClosureBannerFixAutomatedRegression": "pass; final native verification recorded separately"
+  },
+  "desktopScope": {
+    "desktopGridTileAbsent": true,
+    "otherDesktopObsidianExcluded": true,
+    "spaceSwitchPausedNativeWrites": true
+  },
+  "referenceReview": {
+    "officialGuide": "https://trelliswm.app/docs/",
+    "installedBundledLessonsReviewed": true,
+    "nativeTrellisWorkspaceUnavailable": true,
+    "proprietaryCodeOrAssetsCopied": false
+  },
+  "earlierUnresolvedRecoveryBaselinesPreserved": 2,
+  "scope": "Development build native evidence; final universal build is a separate acceptance record."
+}

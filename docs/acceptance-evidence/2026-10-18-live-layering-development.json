@@ -1,0 +1,296 @@
+{
+  "version": "0.6.0",
+  "build": 13,
+  "automatedTests": 122,
+  "unattendedRealAppSwitches": 8,
+  "workspaces": [
+    "Grid 1",
+    "Focus"
+  ],
+  "gridApplications": [
+    "Obsidian",
+    "Muse",
+    "ChatGPT"
+  ],
+  "floatingApplications": [
+    "Google Chrome",
+    "GitHub Desktop",
+    "Finder"
+  ],
+  "warmSwitchesWithoutGeometryWrites": 6,
+  "warmNativeTransactionMedianMilliseconds": 33.037229091860354,
+  "allSettledStackingChecksPassed": true,
+  "settledOrderSampleDelayMilliseconds": 330,
+  "windowsMinimized": 0,
+  "events": [
+    {
+      "displays": [
+        {
+          "activeAboveBackground": true,
+          "activeAppsHidden": [
+            false
+          ],
+          "activeCount": 1,
+          "activeIndices": [
+            16
+          ],
+          "activeServerLevels": [
+            0
+          ],
+          "floatingAboveBackground": true,
+          "floatingCount": 3,
+          "inactiveBelowBackground": true,
+          "inactiveCount": 2,
+          "inactiveIndices": [
+            23,
+            24
+          ],
+          "surfaceIndex": 21,
+          "surfaceLevel": 0,
+          "surfaceServerLevel": 0
+        }
+      ],
+      "grid": "Grid 1",
+      "managedWindowsMinimized": 0,
+      "nativeMoveCalls": 1,
+      "nativeTransactionMilliseconds": 83.58983346261084
+    },
+    {
+      "displays": [
+        {
+          "activeAboveBackground": true,
+          "activeAppsHidden": [
+            false,
+            false
+          ],
+          "activeCount": 2,
+          "activeIndices": [
+            17,
+            18
+          ],
+          "activeServerLevels": [
+            0,
+            0
+          ],
+          "floatingAboveBackground": true,
+          "floatingCount": 3,
+          "inactiveBelowBackground": true,
+          "inactiveCount": 1,
+          "inactiveIndices": [
+            23
+          ],
+          "surfaceIndex": 22,
+          "surfaceLevel": 0,
+          "surfaceServerLevel": 0
+        }
+      ],
+      "grid": "Focus",
+      "managedWindowsMinimized": 0,
+      "nativeMoveCalls": 0,
+      "nativeTransactionMilliseconds": 165.01483344472945
+    },
+    {
+      "displays": [
+        {
+          "activeAboveBackground": true,
+          "activeAppsHidden": [
+            false
+          ],
+          "activeCount": 1,
+          "activeIndices": [
+            16
+          ],
+          "activeServerLevels": [
+            0
+          ],
+          "floatingAboveBackground": true,
+          "floatingCount": 3,
+          "inactiveBelowBackground": true,
+          "inactiveCount": 2,
+          "inactiveIndices": [
+            21,
+            22
+          ],
+          "surfaceIndex": 20,
+          "surfaceLevel": 0,
+          "surfaceServerLevel": 0
+        }
+      ],
+      "grid": "Grid 1",
+      "managedWindowsMinimized": 0,
+      "nativeMoveCalls": 0,
+      "nativeTransactionMilliseconds": 36.226666532456875
+    },
+    {
+      "displays": [
+        {
+          "activeAboveBackground": true,
+          "activeAppsHidden": [
+            false,
+            false
+          ],
+          "activeCount": 2,
+          "activeIndices": [
+            17,
+            18
+          ],
+          "activeServerLevels": [
+            0,
+            0
+          ],
+          "floatingAboveBackground": true,
+          "floatingCount": 3,
+          "inactiveBelowBackground": true,
+          "inactiveCount": 1,
+          "inactiveIndices": [
+            23
+          ],
+          "surfaceIndex": 22,
+          "surfaceLevel": 0,
+          "surfaceServerLevel": 0
+        }
+      ],
+      "grid": "Focus",
+      "managedWindowsMinimized": 0,
+      "nativeMoveCalls": 0,
+      "nativeTransactionMilliseconds": 41.2769999820739
+    },
+    {
+      "displays": [
+        {
+          "activeAboveBackground": true,
+          "activeAppsHidden": [
+            false
+          ],
+          "activeCount": 1,
+          "activeIndices": [
+            16
+          ],
+          "activeServerLevels": [
+            0
+          ],
+          "floatingAboveBackground": true,
+          "floatingCount": 3,
+          "inactiveBelowBackground": true,
+          "inactiveCount": 2,
+          "inactiveIndices": [
+            21,
+            22
+          ],
+          "surfaceIndex": 20,
+          "surfaceLevel": 0,
+          "surfaceServerLevel": 0
+        }
+      ],
+      "grid": "Grid 1",
+      "managedWindowsMinimized": 0,
+      "nativeMoveCalls": 0,
+      "nativeTransactionMilliseconds": 29.847791651263833
+    },
+    {
+      "displays": [
+        {
+          "activeAboveBackground": true,
+          "activeAppsHidden": [
+            false,
+            false
+          ],
+          "activeCount": 2,
+          "activeIndices": [
+            17,
+            19
+          ],
+          "activeServerLevels": [
+            0,
+            0
+          ],
+          "floatingAboveBackground": true,
+          "floatingCount": 3,
+          "inactiveBelowBackground": true,
+          "inactiveCount": 1,
+          "inactiveIndices": [
+            23
+          ],
+          "surfaceIndex": 22,
+          "surfaceLevel": 0,
+          "surfaceServerLevel": 0
+        }
+      ],
+      "grid": "Focus",
+      "managedWindowsMinimized": 0,
+      "nativeMoveCalls": 0,
+      "nativeTransactionMilliseconds": 20.575083326548338
+    },
+    {
+      "displays": [
+        {
+          "activeAboveBackground": true,
+          "activeAppsHidden": [
+            false
+          ],
+          "activeCount": 1,
+          "activeIndices": [
+            16
+          ],
+          "activeServerLevels": [
+            0
+          ],
+          "floatingAboveBackground": true,
+          "floatingCount": 3,
+          "inactiveBelowBackground": true,
+          "inactiveCount": 2,
+          "inactiveIndices": [
+            22,
+            21
+          ],
+          "surfaceIndex": 20,
+          "surfaceLevel": 0,
+          "surfaceServerLevel": 0
+        }
+      ],
+      "grid": "Grid 1",
+      "managedWindowsMinimized": 0,
+      "nativeMoveCalls": 0,
+      "nativeTransactionMilliseconds": 25.021541630849242
+    },
+    {
+      "displays": [
+        {
+          "activeAboveBackground": true,
+          "activeAppsHidden": [
+            false,
+            false
+          ],
+          "activeCount": 2,
+          "activeIndices": [
+            17,
+            18
+          ],
+          "activeServerLevels": [
+            0,
+            0
+          ],
+          "floatingAboveBackground": true,
+          "floatingCount": 3,
+          "inactiveBelowBackground": true,
+          "inactiveCount": 1,
+          "inactiveIndices": [
+            23
+          ],
+          "surfaceIndex": 22,
+          "surfaceLevel": 0,
+          "surfaceServerLevel": 0
+        }
+      ],
+      "grid": "Focus",
+      "managedWindowsMinimized": 0,
+      "nativeMoveCalls": 0,
+      "nativeTransactionMilliseconds": 83.41641677543521
+    }
+  ],
+  "limitations": [
+    "Native API duration is not frame-by-frame screen latency.",
+    "No subjective user acceptance of this build yet.",
+    "Physical multiple displays not certified."
+  ]
+}

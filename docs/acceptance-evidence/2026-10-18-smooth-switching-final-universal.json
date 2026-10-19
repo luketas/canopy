@@ -1,0 +1,31 @@
+{
+  "version": "0.5.0",
+  "build": 11,
+  "architectures": [
+    "arm64",
+    "x86_64"
+  ],
+  "binarySHA256": "32fdc087721689937ae71e6ec499c221c3d891961cbe4aa802beff06053f5f0a",
+  "signatureVerified": true,
+  "automatedTests": {
+    "xctest": 33,
+    "swiftTesting": 91,
+    "total": 124
+  },
+  "nativeAcceptance": {
+    "launchAndAccessibility": true,
+    "workspaceShortcutsDeliveredInsideCanopy": 4,
+    "physicalWorkspaceTabSwitches": 4,
+    "crossAppInputAfterTransition": true,
+    "restoreWithoutFailure": true,
+    "earlierRecoveryEntriesPreserved": 2,
+    "physicalBackgroundShortcut": "confirmed by user: it switches"
+  },
+  "limitation": "No frame-by-frame desktop video or physical multi-display certification. Development diagnostics separately confirm snapshot, settle, compositor completion, rapid-input coalescing and cleanup.",
+  "leftRunning": {
+    "arranging": true,
+    "grid": "Grid 3",
+    "editorClosed": true
+  },
+  "userFeedback": "Amount of window animation rejected; addressed by 0.5.1 quiet reveals."
+}

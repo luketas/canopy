@@ -1,0 +1,132 @@
+{
+  "date": "2026-10-18",
+  "version": "0.3.1",
+  "build": "9",
+  "automatedTests": {
+    "XCTest": 33,
+    "SwiftTesting": 75,
+    "total": 108,
+    "result": "pass"
+  },
+  "nativeDevelopment": {
+    "newGridsEmpty": true,
+    "grid2Apps": [
+      "com.github.GitHubClient",
+      "com.google.Chrome"
+    ],
+    "grid3Apps": [
+      "com.meta.endo",
+      "net.whatsapp.WhatsApp"
+    ],
+    "sidebarPlusClickAddedOneWindow": true,
+    "edgeDragCreatedSplit": true,
+    "applyKeptChosenAppSet": true,
+    "appTabRemovalAndUndo": true,
+    "dragOutRemovalAndUndo": true,
+    "workspaceTabTransferAndReturn": true,
+    "initialTransferNarrowColumnsDiscoveredAndFixed": true,
+    "balancedThreeWindowTransferKeptArranging": true,
+    "switchesBetweenDifferentAppSets": 12,
+    "restoreWithoutFailure": true,
+    "nativeRestoredFrames": [
+      {
+        "bundle": "com.github.GitHubClient",
+        "original": [
+          1298,
+          87,
+          1277,
+          734
+        ],
+        "restored": [
+          1298,
+          87,
+          1277,
+          734
+        ],
+        "exactMatch": true
+      },
+      {
+        "bundle": "com.google.Chrome",
+        "original": [
+          31,
+          37,
+          2562,
+          1326
+        ],
+        "restored": [
+          31,
+          37,
+          2562,
+          1326
+        ],
+        "exactMatch": true
+      },
+      {
+        "bundle": "com.meta.endo",
+        "original": [
+          1753,
+          340,
+          1200,
+          800
+        ],
+        "restored": [
+          1753,
+          340,
+          1200,
+          800
+        ],
+        "exactMatch": true
+      },
+      {
+        "bundle": "com.apple.systempreferences",
+        "original": [
+          397,
+          267,
+          723,
+          611
+        ],
+        "restored": [
+          397,
+          267,
+          723,
+          611
+        ],
+        "exactMatch": true
+      },
+      {
+        "bundle": "net.whatsapp.WhatsApp",
+        "original": [
+          1230,
+          139,
+          2031,
+          1175
+        ],
+        "restored": [
+          1230,
+          139,
+          2031,
+          1175
+        ],
+        "exactMatch": true
+      }
+    ]
+  },
+  "review": {
+    "firstDisposition": "fix",
+    "findings": [
+      "Apply Grid toolbar overflow at minimum width",
+      "Clarify content versus total minimum size"
+    ],
+    "codeFix": "Recovery moved to File/menu-bar menus",
+    "minimumTotalPoints": [
+      850,
+      612
+    ],
+    "contentMinimumPoints": [
+      850,
+      560
+    ],
+    "finalVerdict": "ship, scoped to the two fixes, confirmed on final universal build"
+  },
+  "scope": "Development live evidence. Final binary smoke and review verdict recorded separately; no private window titles or contents in this artifact."
+}

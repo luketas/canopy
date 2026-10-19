@@ -1,0 +1,25 @@
+name: Bug report
+description: Report a problem with windows, layouts, or controls.
+labels: [bug]
+body:
+  - type: input
+    id: app-version
+    attributes:
+      label: Canopy version
+      placeholder: 0.7.0, or the commit you built
+    validations:
+      required: true
+  - type: input
+    id: environment
+    attributes:
+      label: macOS and display setup
+      placeholder: macOS version, Mac architecture, number of displays
+    validations:
+      required: true
+  - type: textarea
+    id: reproduction
+    attributes:
+      label: What happened?
+      description: Include steps, expected behavior, affected apps, and whether Restore Windows worked. Remove private window titles and personal information from screenshots or logs.
+    validations:
+      required: true

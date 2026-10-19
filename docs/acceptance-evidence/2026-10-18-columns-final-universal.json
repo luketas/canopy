@@ -1,0 +1,45 @@
+{
+  "schema": 1,
+  "date": "2026-10-18",
+  "version": "0.4.0",
+  "build": 10,
+  "architectures": [
+    "arm64",
+    "x86_64"
+  ],
+  "executableSHA256": "25750af2dc583aad71d6f891b17b3a9b751c6575b59c66cef784afe96a4e9963",
+  "signatureVerified": true,
+  "canonicalPath": "dist/Canopy.app",
+  "smoke": {
+    "launch": true,
+    "permissionRetained": true,
+    "fourColumnsRetained": true,
+    "interactiveReleaseAcceptance": "passed",
+    "arrangeFourRealApps": true,
+    "stackByColumnHeaderDrag": true,
+    "returnToEmptyFullColumnDrag": true,
+    "physicalWorkspaceSwitches": 8,
+    "selectedWorkspaceAssertedAfterEverySwitch": true,
+    "editorClosedDuringSwitches": true,
+    "editGridsReopenedEditor": true,
+    "physicalGitHubHistoryAndChangesClicks": true,
+    "restoreCompletedWithoutFailure": true,
+    "currentSessionJournalEntriesCleared": 6,
+    "restoredGitHubSize": [
+      1277,
+      734
+    ],
+    "leftOpenAndPaused": true
+  },
+  "recoveryEntryCount": 2,
+  "priorDevelopmentAcceptance": "2026-10-18-columns.json",
+  "visualReview": "2026-10-18-columns-ui-review.md",
+  "restoredSessionBundles": [
+    "com.apple.finder",
+    "com.apple.systempreferences",
+    "com.github.GitHubClient",
+    "com.google.Chrome",
+    "com.meta.endo",
+    "net.whatsapp.WhatsApp"
+  ]
+}

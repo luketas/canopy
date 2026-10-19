@@ -1,0 +1,16 @@
+name: Feature request
+description: Suggest an improvement to Canopy.
+labels: [enhancement]
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: What would you like to do?
+      description: Describe your workflow and where Canopy gets in the way.
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Suggested behavior
+      description: A short example or sketch is welcome.

@@ -1,0 +1,121 @@
+{
+  "date": "2026-10-18",
+  "version": "0.3.0",
+  "build": "8",
+  "automatedTests": {
+    "XCTest": 33,
+    "SwiftTesting": 69,
+    "total": 102,
+    "result": "pass"
+  },
+  "animationFix": {
+    "opaqueFullDisplayFillRemoved": true,
+    "appTabChangesSkipDisplayTransitionEvenWithPreviews": true,
+    "noPreviewTransitionDrawIsTransparentBitmapRegression": true,
+    "interruptedTimersStopAndSubsequentAnimationCompletes": true,
+    "replacementRevealedBeforeOutgoingMinimized": true,
+    "editorTabClicksKeepFocusInCanopy": true
+  },
+  "nativeDevelopment": {
+    "apps": [
+      "com.github.GitHubClient",
+      "com.google.Chrome",
+      "com.meta.endo",
+      "com.apple.systempreferences",
+      "net.whatsapp.WhatsApp"
+    ],
+    "workspaceGridSwitches": 16,
+    "appTabSwitchesAfterActivationFix": 24,
+    "currentDesktopCountStayedFive": true,
+    "arrangementStayedActive": true,
+    "secondGridCreatedAsCopyAndEditedWithMouse": true,
+    "secondGridRenamedFocusThroughUI": true,
+    "nativeGitHubHistoryClickAccepted": true,
+    "distinctGridTreesPersisted": true,
+    "restoreOneClickWithoutFailure": true,
+    "nativeFrameComparisons": [
+      {
+        "bundle": "com.github.GitHubClient",
+        "original": [
+          1298,
+          87,
+          1277,
+          734
+        ],
+        "restored": [
+          1298,
+          87,
+          1277,
+          734
+        ],
+        "exactMatch": true
+      },
+      {
+        "bundle": "com.google.Chrome",
+        "original": [
+          31,
+          37,
+          2562,
+          1326
+        ],
+        "restored": [
+          31,
+          37,
+          2562,
+          1326
+        ],
+        "exactMatch": true
+      },
+      {
+        "bundle": "com.meta.endo",
+        "original": [
+          1753,
+          340,
+          1200,
+          800
+        ],
+        "restored": [
+          1753,
+          340,
+          1200,
+          800
+        ],
+        "exactMatch": true
+      },
+      {
+        "bundle": "com.apple.systempreferences",
+        "original": [
+          397,
+          267,
+          723,
+          611
+        ],
+        "restored": [
+          397,
+          267,
+          723,
+          611
+        ],
+        "exactMatch": true
+      },
+      {
+        "bundle": "net.whatsapp.WhatsApp",
+        "original": [
+          1230,
+          139,
+          2031,
+          1175
+        ],
+        "restored": [
+          1230,
+          139,
+          2031,
+          1175
+        ],
+        "exactMatch": true
+      }
+    ]
+  },
+  "earlierRecoveryEntriesPreserved": 2,
+  "scope": "Development build live tests use actual mouse clicks and native apps. Transparent rendering and transition timer cancellation additionally verified with automated tests. Full desktop high-frame-rate video and Screen Recording-enabled preview animation have not been independently accepted."
+}

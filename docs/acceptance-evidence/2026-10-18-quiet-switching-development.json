@@ -1,0 +1,170 @@
+{
+  "version": "0.5.1",
+  "build": 12,
+  "automatedTests": 124,
+  "keyboardWorkspaceSwitches": 6,
+  "globalShortcutsPhysicallyConfirmedByUser": true,
+  "visualTreatment": "opaque hold, then one unanimated reveal; no opacity fade",
+  "events": [
+    {
+      "event": "cancelled",
+      "time": 1160479.4494640834
+    },
+    {
+      "event": "cancelled",
+      "time": 1160479.7823621668
+    },
+    {
+      "event": "cancelled",
+      "time": 1160480.031726375
+    },
+    {
+      "event": "cancelled",
+      "time": 1160493.8934730417
+    },
+    {
+      "event": "capture-started",
+      "time": 1160505.1776980418
+    },
+    {
+      "event": "snapshot-presented",
+      "time": 1160505.4511904584
+    },
+    {
+      "event": "layout-applied",
+      "time": 1160505.7800807918
+    },
+    {
+      "event": "windows-settled",
+      "time": 1160506.2437744583
+    },
+    {
+      "event": "revealed-without-animation",
+      "time": 1160506.2449785834
+    },
+    {
+      "event": "finished",
+      "time": 1160506.2455777084
+    },
+    {
+      "event": "capture-started",
+      "time": 1160506.5570266668
+    },
+    {
+      "event": "snapshot-presented",
+      "time": 1160506.686116125
+    },
+    {
+      "event": "layout-applied",
+      "time": 1160506.868159875
+    },
+    {
+      "event": "windows-settled",
+      "time": 1160507.33078425
+    },
+    {
+      "event": "revealed-without-animation",
+      "time": 1160507.3317334584
+    },
+    {
+      "event": "finished",
+      "time": 1160507.3324301667
+    },
+    {
+      "event": "capture-started",
+      "time": 1160507.6712034168
+    },
+    {
+      "event": "snapshot-presented",
+      "time": 1160507.7898779167
+    },
+    {
+      "event": "layout-applied",
+      "time": 1160507.9800985001
+    },
+    {
+      "event": "windows-settled",
+      "time": 1160508.350610625
+    },
+    {
+      "event": "revealed-without-animation",
+      "time": 1160508.3517047083
+    },
+    {
+      "event": "finished",
+      "time": 1160508.3522404167
+    },
+    {
+      "event": "capture-started",
+      "time": 1160508.6985919585
+    },
+    {
+      "event": "snapshot-presented",
+      "time": 1160508.9323960834
+    },
+    {
+      "event": "layout-applied",
+      "time": 1160509.1361276668
+    },
+    {
+      "event": "windows-settled",
+      "time": 1160509.5488462918
+    },
+    {
+      "event": "revealed-without-animation",
+      "time": 1160509.5529096667
+    },
+    {
+      "event": "finished",
+      "time": 1160509.556024625
+    },
+    {
+      "event": "capture-started",
+      "time": 1160509.8793391667
+    },
+    {
+      "event": "snapshot-presented",
+      "time": 1160509.9879760833
+    },
+    {
+      "event": "layout-applied",
+      "time": 1160510.1803307084
+    },
+    {
+      "event": "windows-settled",
+      "time": 1160510.5799792917
+    },
+    {
+      "event": "revealed-without-animation",
+      "time": 1160510.5810294584
+    },
+    {
+      "event": "finished",
+      "time": 1160510.5815051252
+    },
+    {
+      "event": "capture-started",
+      "time": 1160510.7930825
+    },
+    {
+      "event": "snapshot-presented",
+      "time": 1160510.9169929167
+    },
+    {
+      "event": "layout-applied",
+      "time": 1160511.1217001667
+    },
+    {
+      "event": "windows-settled",
+      "time": 1160511.5557689168
+    },
+    {
+      "event": "revealed-without-animation",
+      "time": 1160511.56329225
+    },
+    {
+      "event": "finished",
+      "time": 1160511.563858
+    }
+  ]
+}

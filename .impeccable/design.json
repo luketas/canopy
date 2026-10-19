@@ -1,0 +1,117 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-10-18T23:50:18.577969+00:00",
+  "title": "Design System: Canopy",
+  "extensions": {
+    "colorMeta": {
+      "forest-light": {
+        "role": "primary",
+        "displayName": "Forest green, light appearance"
+      },
+      "forest-dark": {
+        "role": "primary",
+        "displayName": "Forest green, dark appearance"
+      }
+    },
+    "motion": [
+      {
+        "name": "inspector-focus",
+        "value": "220ms ease-in-out",
+        "purpose": "Inspector focus; disabled for Reduce Motion."
+      },
+      {
+        "name": "native-camera",
+        "value": "460ms",
+        "purpose": "Native camera transition; respects Reduce Motion."
+      },
+      {
+        "name": "workspace-stacking",
+        "value": "no animation",
+        "purpose": "Keep inactive native windows live behind a workspace background; raise the selected grid. Skip unchanged geometry. No screenshot wait, fade, or minimizing."
+      }
+    ],
+    "breakpoints": [
+      {
+        "name": "compact-leaf-width",
+        "value": "220pt"
+      },
+      {
+        "name": "compact-leaf-height",
+        "value": "240pt"
+      },
+      {
+        "name": "observed-minimum-total-window",
+        "value": "850 \u00d7 612pt"
+      }
+    ]
+  },
+  "components": [
+    {
+      "name": "Column count",
+      "kind": "custom",
+      "refersTo": "column-count",
+      "description": "Documentation preview of native Columns choices; actual rendering remains SwiftUI-owned.",
+      "html": "<div class=\"ds-columns\" aria-label=\"Columns\"><span>Columns</span><button>1</button><button>2</button><button>3</button><button aria-pressed=\"true\">4</button></div>",
+      "css": ".ds-columns{display:flex;align-items:center;gap:0;font:13px -apple-system,sans-serif}.ds-columns span{margin-right:8px;color:GrayText}.ds-columns button{width:28px;height:26px;border:0;background:ButtonFace;color:ButtonText;font:500 13px -apple-system,sans-serif}.ds-columns button[aria-pressed=true]{background:color-mix(in srgb,AccentColor 18%,ButtonFace)}.ds-columns button:hover{background:color-mix(in srgb,AccentColor 22%,ButtonFace)}.ds-columns button:focus-visible{outline:2px solid AccentColor;outline-offset:1px}"
+    },
+    {
+      "name": "Column header",
+      "kind": "custom",
+      "refersTo": "column-header",
+      "description": "Native labeled vertical-stack target; symbol omitted in this documentation preview.",
+      "html": "<div class=\"ds-column\" tabindex=\"0\">Column 1</div>",
+      "css": ".ds-column{height:28px;padding:0 10px;display:flex;align-items:center;border-radius:5px;background:ButtonFace;color:ButtonText;font:600 12px -apple-system,sans-serif}.ds-column:hover{background:color-mix(in srgb,AccentColor 22%,ButtonFace)}.ds-column:focus-visible{outline:2px solid AccentColor}"
+    },
+    {
+      "name": "Empty column",
+      "kind": "card",
+      "description": "Implementation-derived drop slot; absent from the scoped visual inspection.",
+      "html": "<div class=\"ds-empty\" tabindex=\"0\"><strong>Drop a window</strong><span>Use this full column</span></div>",
+      "css": ".ds-empty{min-height:160px;border:1px dashed GrayText;border-radius:10px;background:Field;color:GrayText;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;font:13px -apple-system,sans-serif}.ds-empty span{font-size:12px}.ds-empty:hover{color:AccentColor}.ds-empty:focus-visible{outline:2px solid AccentColor}"
+    },
+    {
+      "name": "Find a window",
+      "kind": "input",
+      "description": "Documentation preview of the native rounded search field; OS focus/disabled styles remain authoritative.",
+      "html": "<input class=\"ds-search\" placeholder=\"Find a window\" aria-label=\"Find a window\">",
+      "css": ".ds-search{font:13px -apple-system,sans-serif;border:1px solid GrayText;border-radius:5px;padding:4px 6px;background:Field;color:FieldText}.ds-search:hover{border-color:AccentColor}.ds-search:focus-visible{outline:2px solid AccentColor;outline-offset:1px}"
+    },
+    {
+      "name": "Desktop workspaces",
+      "kind": "nav",
+      "refersTo": "desktop-workspaces",
+      "description": "Documentation preview of stable AppKit workspace buttons and Edit Grids; no live behavior or screenshot fidelity is implied.",
+      "html": "<nav class=\"ds-strip\" aria-label=\"Canopy Workspaces\"><button aria-current=\"page\">Grid 1</button><button>Grid 2</button><button class=\"ds-edit\">Edit Grids</button></nav>",
+      "css": ".ds-strip{height:32px;display:flex;align-items:center;background:ButtonFace;color:ButtonText}.ds-strip button{border:0;background:transparent;color:inherit;height:26px;padding:0 12px;border-radius:5px;font:12px -apple-system,sans-serif}.ds-strip button[aria-current=page]{background:color-mix(in srgb,AccentColor 18%,ButtonFace);font-weight:600}.ds-strip .ds-edit{margin-left:auto;width:110px;font-weight:500}.ds-strip button:hover{background:color-mix(in srgb,AccentColor 22%,ButtonFace)}.ds-strip button:focus-visible{outline:2px solid AccentColor;outline-offset:-2px}"
+    }
+  ],
+  "narrative": {
+    "northStar": "Native workspace inspector",
+    "overview": "Canopy is a compact SwiftUI/AppKit macOS utility. System typography, SF Symbols, real application icons, native menus, and restrained forest-green selection support direct workspace editing. The canvas explains the window arrangement; the desktop strip keeps workspace navigation available when the editor is closed. Extend these existing conventions incrementally.",
+    "keyCharacteristics": [
+      "Native utility chrome and compact controls.",
+      "Visible membership, column structure, and selected workspace.",
+      "Neutral surfaces with restrained accent and app-color cues.",
+      "Explicit window movement, reversible edits, and honest status labels."
+    ],
+    "rules": [
+      {
+        "name": "The Reserved Strip Rule",
+        "body": "While arrangement is active, place the workspace strip across each display below the menu bar and reserve its height before positioning app frames. In the observed 3440-wide display it occupied (0, 30, 3440, 32); app content began at y=70 with the current gap. These coordinates describe that display, not a universal menu-bar height. Tabs belong to each display's workspaces. Physical multiple-display behavior remains outside the recorded acceptance.",
+        "section": "layout"
+      }
+    ],
+    "dos": [
+      "Do preserve system typography, SF Symbols, native menus, and adaptive semantic surfaces.",
+      "Do keep column choices, labeled stack targets, selected workspaces, and Apply Grid readable at the attainable minimum.",
+      "Do reserve the desktop strip before calculating managed app frames and keep Edit Grids available when the editor closes.",
+      "Do distinguish source-derived states, scoped visual review, and real native-window acceptance."
+    ],
+    "donts": [
+      "Don't replace native controls with web-style chrome or invent a new visual identity for an incremental editor change.",
+      "Don't add Desktop as a grid tile or membership choice.",
+      "Don't recreate desktop workspace buttons during ordinary selection updates.",
+      "Don't describe 850 \u00d7 560 as the minimum total window or claim screenshots were saved when only CUA tool images were observed."
+    ]
+  }
+}

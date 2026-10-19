@@ -1,0 +1,302 @@
+{
+  "date": "2026-10-18",
+  "phase": "development build before final universal packaging",
+  "version": "0.2.2",
+  "os": "macOS 26.2 (25C56)",
+  "display": [
+    3440,
+    1440
+  ],
+  "currentDesktopApps": [
+    "com.apple.systempreferences",
+    "com.github.GitHubClient",
+    "com.google.Chrome",
+    "net.whatsapp.WhatsApp"
+  ],
+  "offDesktopAppExcluded": "md.obsidian",
+  "nativeMoves": [
+    {
+      "actual": [
+        8,
+        38,
+        1135,
+        693
+      ],
+      "bundle": "com.github.GitHubClient",
+      "requested": [
+        8,
+        38,
+        1135,
+        693
+      ],
+      "results": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "actual": [
+        8,
+        739,
+        1135,
+        693
+      ],
+      "bundle": "com.google.Chrome",
+      "requested": [
+        8,
+        739,
+        1135,
+        693
+      ],
+      "results": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "actual": [
+        1151,
+        38,
+        723,
+        693
+      ],
+      "bundle": "com.apple.systempreferences",
+      "requested": [
+        1151,
+        38,
+        1135,
+        693
+      ],
+      "results": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "actual": [
+        1151,
+        739,
+        1135,
+        693
+      ],
+      "bundle": "net.whatsapp.WhatsApp",
+      "requested": [
+        1151,
+        739,
+        1135,
+        693
+      ],
+      "results": [
+        0,
+        -25204,
+        -25204
+      ]
+    },
+    {
+      "actual": [
+        2293,
+        38,
+        1139,
+        1394
+      ],
+      "bundle": "com.google.Chrome",
+      "requested": [
+        2293,
+        38,
+        1139,
+        1394
+      ],
+      "results": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "actual": [
+        8,
+        38,
+        1708,
+        693
+      ],
+      "bundle": "com.github.GitHubClient",
+      "requested": [
+        8,
+        38,
+        1708,
+        693
+      ],
+      "results": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "actual": [
+        8,
+        739,
+        1708,
+        693
+      ],
+      "bundle": "com.google.Chrome",
+      "requested": [
+        8,
+        739,
+        1708,
+        693
+      ],
+      "results": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "actual": [
+        1724,
+        38,
+        723,
+        693
+      ],
+      "bundle": "com.apple.systempreferences",
+      "requested": [
+        1724,
+        38,
+        1708,
+        693
+      ],
+      "results": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "actual": [
+        1724,
+        739,
+        1708,
+        693
+      ],
+      "bundle": "net.whatsapp.WhatsApp",
+      "requested": [
+        1724,
+        739,
+        1708,
+        693
+      ],
+      "results": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "actual": [
+        1298,
+        87,
+        1277,
+        734
+      ],
+      "bundle": "com.github.GitHubClient",
+      "requested": [
+        1298,
+        87,
+        1277,
+        734
+      ],
+      "results": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "actual": [
+        31,
+        37,
+        2562,
+        1326
+      ],
+      "bundle": "com.google.Chrome",
+      "requested": [
+        31,
+        37,
+        2562,
+        1326
+      ],
+      "results": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "actual": [
+        397,
+        267,
+        723,
+        611
+      ],
+      "bundle": "com.apple.systempreferences",
+      "requested": [
+        397,
+        267,
+        723,
+        611
+      ],
+      "results": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "actual": [
+        1230,
+        139,
+        2031,
+        1175
+      ],
+      "bundle": "net.whatsapp.WhatsApp",
+      "requested": [
+        1230,
+        139,
+        2031,
+        1175
+      ],
+      "results": [
+        0,
+        0,
+        0
+      ]
+    }
+  ],
+  "exactRestoration": {
+    "com.github.GitHubClient": true,
+    "com.google.Chrome": true,
+    "com.apple.systempreferences": true,
+    "net.whatsapp.WhatsApp": true
+  },
+  "observed": [
+    "Chrome local input accepted while arranged",
+    "GitHub Changes and History clicks in grid and zoom",
+    "GitHub and System Settings tab switching followed by undo",
+    "new native Chrome window enrolled then closed",
+    "closed window absent from live preview, records, and restoration journal",
+    "one-click restore completed with no session windows left to restore"
+  ],
+  "automatedTests": {
+    "XCTest": 33,
+    "SwiftTesting": 50
+  },
+  "limitations": [
+    "earlier legacy recovery journal entries preserved",
+    "physical multiple displays, gestures, drag docking and previews not certified",
+    "final universal smoke recorded separately"
+  ]
+}

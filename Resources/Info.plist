@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0"><dict>
+    <key>CFBundleName</key><string>Canopy</string>
+    <key>CFBundleDisplayName</key><string>Canopy</string>
+    <key>CFBundleIdentifier</key><string>org.canopywm.Canopy</string>
+    <key>CFBundleExecutable</key><string>Canopy</string>
+    <key>CFBundlePackageType</key><string>APPL</string>
+    <key>CFBundleShortVersionString</key><string>0.7.0</string>
+    <key>CFBundleVersion</key><string>14</string>
+    <key>CFBundleIconFile</key><string>Canopy</string>
+    <key>NSPrincipalClass</key><string>NSApplication</string>
+    <key>NSScreenCaptureUsageDescription</key><string>Optional window previews use still images kept only in memory.</string>
+    <key>LSMinimumSystemVersion</key><string>14.0</string>
+    <key>LSUIElement</key><true/>
+    <key>NSHighResolutionCapable</key><true/>
+    <key>CFBundleURLTypes</key><array><dict>
+        <key>CFBundleURLName</key><string>Canopy Commands</string>
+        <key>CFBundleURLSchemes</key><array><string>canopy</string></array>
+    </dict></array>
+</dict></plist>

@@ -1,0 +1,28 @@
+{
+  "date": "2026-10-18",
+  "version": "0.2.2",
+  "build": "5",
+  "binarySHA256": "1a7e49cf576643c454f3b3ec7932ba428287336ffee23d6d9ff47376bd1d3574",
+  "architectures": [
+    "arm64",
+    "x86_64"
+  ],
+  "signatureVerified": true,
+  "finalBundleSmoke": {
+    "accessibilityRetainedAcrossRebuild": true,
+    "currentDesktopApps": [
+      "com.github.GitHubClient",
+      "com.google.Chrome",
+      "com.apple.systempreferences",
+      "net.whatsapp.WhatsApp"
+    ],
+    "otherDesktopObsidianExcluded": true,
+    "desktopGridTileAbsent": true,
+    "settledArrangementRemainedActive": true,
+    "GitHubChangesClickAccepted": true,
+    "restoreOneClickNoSessionWindowsRemaining": true,
+    "leftOpenAndPaused": true
+  },
+  "earlierLegacyRecoveryBaselinesPreserved": 2,
+  "scope": "Final universal build smoke; detailed native frame and closure evidence are from preceding development runs."
+}

@@ -1,0 +1,50 @@
+{
+  "date": "2026-10-18",
+  "version": "0.2.3",
+  "build": "7",
+  "binarySHA256": "24f5c69596a2d0df66f123069b30f628167f516f6ebc54902704fbcc49bcee2d",
+  "architectures": [
+    "arm64",
+    "x86_64"
+  ],
+  "signatureVerified": true,
+  "automatedTests": {
+    "XCTest": 33,
+    "SwiftTesting": 61,
+    "total": 94,
+    "result": "pass"
+  },
+  "finalBundleSmoke": {
+    "accessibilityRetainedAcrossRebuild": true,
+    "currentDesktopApps": [
+      "com.github.GitHubClient",
+      "com.google.Chrome",
+      "com.meta.endo",
+      "com.apple.systempreferences",
+      "net.whatsapp.WhatsApp"
+    ],
+    "disposableFinderCreatedTabbedAndClosed": true,
+    "physicalMouseSidebarToCenterCreatedNativeTabGroup": true,
+    "settledArrangementRemainedActive": true,
+    "doubleClickFocusedAndReturnedFromEverything": true,
+    "nativeGitHubChangesInputAccepted": true,
+    "closedFinderAbsentFromLiveGrid": true,
+    "oneClickRestoreNoCurrentSessionRecoveryEntries": true,
+    "lateClosureFailureBannerAbsent": true,
+    "otherDesktopObsidianExcluded": true,
+    "desktopGridTileAbsent": true,
+    "restoredScreenshotPoints": {
+      "GitHubDesktop": [
+        1277,
+        734
+      ],
+      "Muse": [
+        1200,
+        800
+      ]
+    },
+    "leftOpenAndPaused": true
+  },
+  "earlierUnresolvedRecoveryBaselinesPreserved": 2,
+  "scope": "Exact final universal binary live smoke. Five exact before/after native frame pairs are from the preceding development run in 2026-10-18-grid-editor.json. Screenshot dimensions independently confirmed the restored GitHub and Muse sizes on this final binary. No private window contents or titles included."
+}

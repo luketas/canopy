@@ -1,0 +1,573 @@
+{
+  "date": "2026-10-18",
+  "phase": "Development build real-app workflow run",
+  "apps": [
+    "Google Chrome",
+    "Finder",
+    "TextEdit"
+  ],
+  "display": {
+    "width": 3440,
+    "height": 1440
+  },
+  "checks": {
+    "native_arrangement": true,
+    "chrome_input": true,
+    "textedit_input": true,
+    "finder_navigation": true,
+    "zoom_and_return": true,
+    "repeated_native_cross_app_tab_selection": true,
+    "split_resize_and_undo": true,
+    "save_and_recall_view_9": true,
+    "restore_exact_baseline_frames": true
+  },
+  "native_moves": [
+    {
+      "actual": [
+        1724,
+        38,
+        1708,
+        693
+      ],
+      "bundle": "com.apple.finder",
+      "requested": [
+        1724,
+        38,
+        1708,
+        693
+      ],
+      "results": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "actual": [
+        8,
+        739,
+        1708,
+        693
+      ],
+      "bundle": "com.google.Chrome",
+      "requested": [
+        8,
+        739,
+        1708,
+        693
+      ],
+      "results": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "actual": [
+        1724,
+        739,
+        1708,
+        693
+      ],
+      "bundle": "com.apple.TextEdit",
+      "requested": [
+        1724,
+        739,
+        1708,
+        693
+      ],
+      "results": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "actual": [
+        8,
+        38,
+        3424,
+        1394
+      ],
+      "bundle": "com.google.Chrome",
+      "requested": [
+        8,
+        38,
+        3424,
+        1394
+      ],
+      "results": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "actual": [
+        1724,
+        38,
+        1708,
+        693
+      ],
+      "bundle": "com.apple.finder",
+      "requested": [
+        1724,
+        38,
+        1708,
+        693
+      ],
+      "results": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "actual": [
+        8,
+        739,
+        1708,
+        693
+      ],
+      "bundle": "com.google.Chrome",
+      "requested": [
+        8,
+        739,
+        1708,
+        693
+      ],
+      "results": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "actual": [
+        1724,
+        739,
+        1708,
+        693
+      ],
+      "bundle": "com.apple.TextEdit",
+      "requested": [
+        1724,
+        739,
+        1708,
+        693
+      ],
+      "results": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "actual": [
+        1724,
+        38,
+        1708,
+        762
+      ],
+      "bundle": "com.apple.finder",
+      "requested": [
+        1724,
+        38,
+        1708,
+        762
+      ],
+      "results": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "actual": [
+        8,
+        808,
+        1708,
+        624
+      ],
+      "bundle": "com.google.Chrome",
+      "requested": [
+        8,
+        808,
+        1708,
+        624
+      ],
+      "results": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "actual": [
+        1724,
+        808,
+        1708,
+        624
+      ],
+      "bundle": "com.apple.TextEdit",
+      "requested": [
+        1724,
+        808,
+        1708,
+        624
+      ],
+      "results": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "actual": [
+        1724,
+        38,
+        1708,
+        693
+      ],
+      "bundle": "com.apple.finder",
+      "requested": [
+        1724,
+        38,
+        1708,
+        693
+      ],
+      "results": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "actual": [
+        8,
+        739,
+        1708,
+        693
+      ],
+      "bundle": "com.google.Chrome",
+      "requested": [
+        8,
+        739,
+        1708,
+        693
+      ],
+      "results": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "actual": [
+        1724,
+        739,
+        1708,
+        693
+      ],
+      "bundle": "com.apple.TextEdit",
+      "requested": [
+        1724,
+        739,
+        1708,
+        693
+      ],
+      "results": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "actual": [
+        8,
+        38,
+        3424,
+        1394
+      ],
+      "bundle": "com.google.Chrome",
+      "requested": [
+        8,
+        38,
+        3424,
+        1394
+      ],
+      "results": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "actual": [
+        8,
+        66,
+        3424,
+        1366
+      ],
+      "bundle": "com.apple.TextEdit",
+      "requested": [
+        8,
+        66,
+        3424,
+        1366
+      ],
+      "results": [
+        0,
+        0,
+        -25204
+      ]
+    },
+    {
+      "actual": [
+        8,
+        66,
+        3424,
+        1366
+      ],
+      "bundle": "com.google.Chrome",
+      "requested": [
+        8,
+        66,
+        3424,
+        1366
+      ],
+      "results": [
+        0,
+        0,
+        -25204
+      ]
+    },
+    {
+      "actual": [
+        1724,
+        38,
+        1708,
+        693
+      ],
+      "bundle": "com.apple.finder",
+      "requested": [
+        1724,
+        38,
+        1708,
+        693
+      ],
+      "results": [
+        0,
+        0,
+        -25204
+      ]
+    },
+    {
+      "actual": [
+        8,
+        767,
+        3424,
+        665
+      ],
+      "bundle": "com.google.Chrome",
+      "requested": [
+        8,
+        767,
+        3424,
+        665
+      ],
+      "results": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "actual": [
+        8,
+        66,
+        3424,
+        1366
+      ],
+      "bundle": "com.google.Chrome",
+      "requested": [
+        8,
+        66,
+        3424,
+        1366
+      ],
+      "results": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "actual": [
+        8,
+        66,
+        3424,
+        1366
+      ],
+      "bundle": "com.apple.TextEdit",
+      "requested": [
+        8,
+        66,
+        3424,
+        1366
+      ],
+      "results": [
+        0,
+        0,
+        -25204
+      ]
+    },
+    {
+      "actual": [
+        8,
+        66,
+        3424,
+        1366
+      ],
+      "bundle": "com.google.Chrome",
+      "requested": [
+        8,
+        66,
+        3424,
+        1366
+      ],
+      "results": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "actual": [
+        1724,
+        38,
+        1708,
+        693
+      ],
+      "bundle": "com.apple.finder",
+      "requested": [
+        1724,
+        38,
+        1708,
+        693
+      ],
+      "results": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "actual": [
+        8,
+        767,
+        3424,
+        665
+      ],
+      "bundle": "com.google.Chrome",
+      "requested": [
+        8,
+        767,
+        3424,
+        665
+      ],
+      "results": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "actual": [
+        129,
+        472,
+        920,
+        436
+      ],
+      "bundle": "com.apple.finder",
+      "requested": [
+        129,
+        472,
+        920,
+        436
+      ],
+      "results": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "actual": [
+        25,
+        112,
+        2562,
+        1326
+      ],
+      "bundle": "com.google.Chrome",
+      "requested": [
+        25,
+        112,
+        2562,
+        1326
+      ],
+      "results": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "actual": [
+        470,
+        132,
+        586,
+        488
+      ],
+      "bundle": "com.apple.TextEdit",
+      "requested": [
+        470,
+        132,
+        586,
+        488
+      ],
+      "results": [
+        0,
+        0,
+        0
+      ]
+    }
+  ],
+  "all_recorded_moves_match_requested_frames": true,
+  "baseline": {
+    "com.apple.finder": [
+      129,
+      472,
+      920,
+      436
+    ],
+    "com.google.Chrome": [
+      25,
+      112,
+      2562,
+      1326
+    ],
+    "com.apple.TextEdit": [
+      470,
+      132,
+      586,
+      488
+    ]
+  },
+  "notes": [
+    "Native frame measurements are emitted by the running Canopy bridge after public AX writes.",
+    "Input and navigation outcomes were checked through the actual apps using Computer Use.",
+    "This run predates later persistence and six-pane refinements; it is not final-bundle acceptance or certification of all applications.",
+    "Original-desktop group retry remains pending live window availability."
+  ]
+}

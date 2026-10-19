@@ -1,0 +1,143 @@
+{
+  "date": "2026-10-18",
+  "scope": "Disposable CanopyFixture windows only",
+  "automated_tests": {
+    "XCTest": 33,
+    "Swift_Testing": 30
+  },
+  "notes": [
+    "Native measurements were collected across the diagnostic builds described in acceptance.md.",
+    "Final restoration and paused relaunch were verified on the final native test bundle.",
+    "Third-party app compatibility, physical multiple displays, previews, and gestures are not certified."
+  ],
+  "baseline": [
+    {
+      "height": 432,
+      "id": "canopy-fixture-0",
+      "minimized": false,
+      "title": "Canopy Fixture 1",
+      "visible": true,
+      "width": 640,
+      "x": 100,
+      "y": 828
+    },
+    {
+      "height": 432,
+      "id": "canopy-fixture-1",
+      "minimized": false,
+      "title": "Duplicate fixture title",
+      "visible": true,
+      "width": 640,
+      "x": 210,
+      "y": 758
+    },
+    {
+      "height": 432,
+      "id": "canopy-fixture-2",
+      "minimized": false,
+      "title": "Duplicate fixture title",
+      "visible": true,
+      "width": 640,
+      "x": 320,
+      "y": 688
+    }
+  ],
+  "arranged": [
+    {
+      "height": 924,
+      "id": "canopy-fixture-0",
+      "minimized": false,
+      "title": "Canopy Fixture 1",
+      "visible": true,
+      "width": 1277,
+      "x": 1293,
+      "y": 38
+    },
+    {
+      "height": 1394,
+      "id": "canopy-fixture-1",
+      "minimized": false,
+      "title": "Duplicate fixture title",
+      "visible": true,
+      "width": 854,
+      "x": 2578,
+      "y": 38
+    },
+    {
+      "height": 462,
+      "id": "canopy-fixture-2",
+      "minimized": false,
+      "title": "Duplicate fixture title",
+      "visible": true,
+      "width": 2562,
+      "x": 8,
+      "y": 970
+    }
+  ],
+  "native_tab_creation": [
+    {
+      "height": 1366,
+      "id": "canopy-fixture-0",
+      "minimized": false,
+      "title": "Canopy Fixture 1",
+      "visible": true,
+      "width": 3424,
+      "x": 8,
+      "y": 66
+    },
+    {
+      "height": 1394,
+      "id": "canopy-fixture-1",
+      "minimized": true,
+      "title": "Duplicate fixture title",
+      "visible": false,
+      "width": 3424,
+      "x": 8,
+      "y": 38
+    },
+    {
+      "height": 462,
+      "id": "canopy-fixture-2",
+      "minimized": true,
+      "title": "Duplicate fixture title",
+      "visible": false,
+      "width": 2562,
+      "x": 8,
+      "y": 970
+    }
+  ],
+  "restored": [
+    {
+      "height": 432,
+      "id": "canopy-fixture-0",
+      "minimized": false,
+      "title": "Canopy Fixture 1",
+      "visible": true,
+      "width": 640,
+      "x": 100,
+      "y": 828
+    },
+    {
+      "height": 432,
+      "id": "canopy-fixture-1",
+      "minimized": false,
+      "title": "Duplicate fixture title",
+      "visible": true,
+      "width": 640,
+      "x": 210,
+      "y": 758
+    },
+    {
+      "height": 432,
+      "id": "canopy-fixture-2",
+      "minimized": false,
+      "title": "Duplicate fixture title",
+      "visible": true,
+      "width": 640,
+      "x": 320,
+      "y": 688
+    }
+  ],
+  "final_restoration_matches_baseline": true,
+  "final_native_binary_sha256": "48d0d0aea42eb178a173dc58eb72ad7281f79aed86c01207d2c8c671fbb72167"
+}

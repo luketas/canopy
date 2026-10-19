@@ -1,0 +1,46 @@
+{
+  "version": "0.5.1",
+  "build": 12,
+  "date": "2026-10-18",
+  "binarySHA256": "d13f8b2c942e2e31df00e6ab0cd744529a7664769f730a268b8b71964d3f70b5",
+  "architectures": [
+    "x86_64",
+    "arm64"
+  ],
+  "strictCodeSignatureVerified": true,
+  "automatedTests": {
+    "XCTest": 33,
+    "SwiftTesting": 91,
+    "total": 124
+  },
+  "finalPackageNativeChecks": {
+    "directAppKeyboardSwitches": 4,
+    "directAppKeyboardSwitchesPassed": 4,
+    "physicalPointerTabClicks": 4,
+    "physicalPointerTabClicksPassed": 4,
+    "workspaces": [
+      "Focus",
+      "Grid 2"
+    ],
+    "realApplications": [
+      "Google Chrome",
+      "Muse",
+      "ChatGPT"
+    ],
+    "restore": {
+      "oneClick": true,
+      "restoreDisabledAfterCompletion": true,
+      "remainingPriorRecoveryEntries": 2
+    },
+    "leftRunning": true,
+    "selectedWorkspace": "Grid 2",
+    "editorClosed": true
+  },
+  "globalShortcutsPhysicallyConfirmedByUser": true,
+  "visualTreatment": "Opaque snapshot hold until native windows settle, then a single unanimated reveal. No full-screen opacity fade or cross-workspace editor morph.",
+  "developmentTransitionEvidence": "2026-10-18-quiet-switching-development.json",
+  "limitations": [
+    "New visual treatment has not yet received subjective user acceptance.",
+    "No frame-by-frame video analysis or physical multi-display certification."
+  ]
+}

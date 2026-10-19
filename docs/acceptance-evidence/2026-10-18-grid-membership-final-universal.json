@@ -1,0 +1,57 @@
+{
+  "date": "2026-10-18",
+  "version": "0.3.1",
+  "build": "9",
+  "binarySHA256": "7e2af81e18c9eba34a53276d010cb07ccd953cad1145f90b28fd132b9e014f83",
+  "architectures": [
+    "arm64",
+    "x86_64"
+  ],
+  "signatureVerified": true,
+  "automatedTests": {
+    "XCTest": 33,
+    "SwiftTesting": 75,
+    "total": 108,
+    "result": "pass"
+  },
+  "finalUniversalLive": {
+    "persistedDistinctMemberships": {
+      "Grid 2": [
+        "com.github.GitHubClient",
+        "com.google.Chrome"
+      ],
+      "Grid 3": [
+        "com.meta.endo",
+        "net.whatsapp.WhatsApp"
+      ]
+    },
+    "windowSearchFiltersAvailableRows": true,
+    "emptyNewGrid": true,
+    "firstWindowDraggedIntoEmptyCanvas": true,
+    "applyEnrolledOnlyChosenFinder": true,
+    "sidebarMinusRemovedLastWindow": true,
+    "disposableGridClosed": true,
+    "differentAppGridSwitches": 4,
+    "nativeGitHubHistoryInputAccepted": true,
+    "restoredWithoutFailure": true,
+    "recoveryStillAvailableInFileMenu": true,
+    "leftOpenPausedWithGrid2Selected": true
+  },
+  "uiReview": {
+    "disposition": "ship",
+    "scope": "Verdict pass on two material fixes only",
+    "primaryApplyAndRestoreVisibleAtBothSizes": "resolved",
+    "minimumSizeDocumentation": "resolved",
+    "defaultWindowPoints": [
+      1160,
+      760
+    ],
+    "minimumWindowPoints": [
+      850,
+      612
+    ],
+    "captureMethod": "Fresh native CUA captures inspected by independent reviewer, not saved image artifacts",
+    "limits": "Full VoiceOver, keyboard, contrast, dark appearance and other UI states not certified by scoped visual review."
+  },
+  "earlierRecoveryEntriesPreserved": 2
+}

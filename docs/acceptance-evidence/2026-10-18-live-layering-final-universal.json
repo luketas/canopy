@@ -1,0 +1,40 @@
+{
+  "version": "0.6.0",
+  "build": 13,
+  "binarySHA256": "c0ffa8dfd34256141d4be8b4b02ff54df3062efd14d4409b5bd4b52e0b49df9a",
+  "architectures": [
+    "x86_64",
+    "arm64"
+  ],
+  "strictSignatureVerified": true,
+  "auditFlagAbsent": true,
+  "automatedTests": {
+    "XCTest": 33,
+    "SwiftTesting": 89,
+    "total": 122
+  },
+  "nativeAcceptance": {
+    "directKeyboardSwitches": 4,
+    "directKeyboardSwitchesPassed": 4,
+    "pointerEditorWorkspaceClicks": 4,
+    "pointerEditorWorkspaceClicksPassed": 4,
+    "workspaces": [
+      "Grid 1",
+      "Focus"
+    ],
+    "restoreSucceeded": true,
+    "restoreDisabledAfterCompletion": true,
+    "earlierRecoveryEntriesPreserved": 2
+  },
+  "developmentGeometryAndStackingEvidence": "2026-10-18-live-layering-development.json",
+  "physicalGlobalShortcutConfirmedByUserEarlier": true,
+  "limitations": [
+    "No frame-by-frame latency capture or subjective user approval of this build.",
+    "Physical multiple displays not certified.",
+    "A shared native window with different target geometry still requires placement."
+  ],
+  "leftRunning": {
+    "workspace": "Focus",
+    "editorClosed": true
+  }
+}

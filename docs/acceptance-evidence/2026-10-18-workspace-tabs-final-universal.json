@@ -1,0 +1,31 @@
+{
+  "date": "2026-10-18",
+  "version": "0.3.0",
+  "build": "8",
+  "binarySHA256": "c87d4e584993b9f0903f82db46a294250d7a1eed897e0b75eef2950a7c6dfe6e",
+  "architectures": [
+    "arm64",
+    "x86_64"
+  ],
+  "signatureVerified": true,
+  "finalUniversalSmoke": {
+    "gridsPersistedAfterRelaunch": [
+      "Grid 1",
+      "Focus"
+    ],
+    "distinctTreesRetained": true,
+    "workspaceGridSwitches": 8,
+    "appTabSwitches": 12,
+    "currentDesktopFiveAppsStayedAvailable": true,
+    "arrangementStayedActive": true,
+    "closeGridAndUndoRestoredGrid": true,
+    "restoreOneClickNoFailure": true,
+    "noCurrentSessionRestorationEntries": true,
+    "nativeGitHubChangesInputAfterRestore": true,
+    "desktopGridTileAbsent": true,
+    "otherDesktopObsidianExcluded": true,
+    "leftOpenAndPausedWithGrid1Selected": true
+  },
+  "earlierRecoveryEntriesPreserved": 2,
+  "limits": "Repeated native clicks and state/frame observations, supported by transition selection/transparency/timer tests. No independent high-frame-rate full-desktop recording; optional Screen Recording preview animation and physical multi-display switching remain unverified."
+}

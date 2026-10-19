@@ -1,0 +1,32 @@
+{
+  "date": "2026-10-19",
+  "version": "0.7.0",
+  "build": "14",
+  "stage": "final-universal",
+  "architectures": [
+    "x86_64",
+    "arm64"
+  ],
+  "strictSignatureVerified": true,
+  "installedBinaryMatchesPackage": true,
+  "binarySha256": "693e1943f8362a8c1d72fa539c4aa16e6343470c2e92e898487cafc2bac581a2",
+  "nativeAuditAutostart": false,
+  "checks": {
+    "relaunchPreservedSixAppGrid": true,
+    "applyWithoutError": true,
+    "githubHistoryChangesInput": true,
+    "oneClickRestoreWithoutError": true,
+    "reapplyWithoutError": true,
+    "editorClosedWorkspaceBarGrid3Selected": true,
+    "originalThreeGridsPreserved": true
+  },
+  "physicalDevelopmentDockingUserConfirmation": {
+    "Finder": "Preview and docking work",
+    "ObsidianAndChatGPT": "Both work"
+  },
+  "limits": [
+    "Native title-bar input acceptance was user-performed in development build using the same implementation.",
+    "No frame-by-frame video certification.",
+    "Physical multiple displays unverified."
+  ]
+}
