@@ -10,7 +10,7 @@ extension WorkspaceStore {
         let ids = state.records.map(\.id),displayIDs = state.displays.map(\.id)
         let managed = state.displays.flatMap { $0.allGridWindows }
         guard Set(ids).count == ids.count,Set(displayIDs).count == displayIDs.count,
-              Set(managed).count == managed.count,Set(managed.filter { !isDesktop($0) }).isSubset(of: Set(ids)),
+              Set(managed.filter { !isDesktop($0) }).isSubset(of: Set(ids)),
               state.gap.isFinite,(0...32).contains(state.gap),
               state.records.allSatisfy({ !$0.id.isEmpty && $0.originalFrame.isValid }),
               state.displays.allSatisfy({ workspace in

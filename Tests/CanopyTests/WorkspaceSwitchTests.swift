@@ -5,10 +5,27 @@ import CanopyCore
 @testable import Canopy
 
 @Test @MainActor
+func workspaceCyclingSkipsEmptyAndUnavailableGrids() throws {
+    let bridge = FakeWindows(),(store,directory) = makeStore(bridge: bridge)
+    defer { store.shutdown(); try? FileManager.default.removeItem(at: directory) }
+    let empty = try #require(store.current?.activeGridID)
+    store.addWorkspaceGrid(); store.addWindowsToCurrentGrid(["a"])
+    let first = try #require(store.current?.activeGridID)
+    store.addWorkspaceGrid(); store.addWindowsToCurrentGrid(["b"])
+    let second = try #require(store.current?.activeGridID)
+    store.selectWorkspaceGrid(empty); store.cycleWorkspace(1)
+    #expect(store.current?.activeGridID == first)
+    store.cycleWorkspace(1); #expect(store.current?.activeGridID == second)
+    store.cycleWorkspace(1); #expect(store.current?.activeGridID == first)
+    bridge.windows["b"]?.onScreen = false
+    store.cycleWorkspace(-1); #expect(store.current?.activeGridID == first)
+}
+
+@Test @MainActor
 func workspaceShortcutMigrationPreservesCustomizationAndDisabledBindings() {
     var original = ShortcutBinding.defaults.filter { !$0.id.hasPrefix("workspace") }
     original[0].enabled = false
-    original[1].keyCode = 123; original[1].modifiers = UInt32(controlKey | optionKey | cmdKey)
+    original[1].keyCode = 48; original[1].modifiers = UInt32(optionKey | shiftKey)
     let migrated = ShortcutBinding.addingMissingDefaults(to: original)
     #expect(Array(migrated.prefix(original.count)) == original)
     #expect(migrated.first { $0.id == "workspace-previous" }?.enabled == false)
@@ -57,11 +74,25 @@ func workspaceSwitchDefersNativeWritesAndRejectsStaleOrCancelledCommits() throws
 @Test @MainActor
 func workspaceShortcutMatchingRequiresEveryModifierAndIgnoresCapsLock() throws {
     let binding = try #require(ShortcutBinding.defaults.first { $0.id == "workspace-next" })
-    #expect(binding.matches(keyCode: 124,flags: [.control,.option,.command]))
-    #expect(binding.matches(keyCode: 124,flags: [.control,.option,.command,.capsLock]))
-    #expect(!binding.matches(keyCode: 124,flags: [.control,.option]))
-    #expect(!binding.matches(keyCode: 124,flags: [.control,.option,.command,.shift]))
-    #expect(!binding.matches(keyCode: 123,flags: [.control,.option,.command]))
+    #expect(binding.matches(keyCode: 48,flags: [.option]))
+    #expect(binding.matches(keyCode: 48,flags: [.option,.capsLock]))
+    #expect(!binding.matches(keyCode: 48,flags: [.control,.option]))
+    #expect(!binding.matches(keyCode: 48,flags: [.option,.shift]))
+    #expect(!binding.matches(keyCode: 49,flags: [.option]))
+}
+
+@Test @MainActor
+func oldWorkspaceCycleDefaultsMigrateWithoutOverwritingCustomOrDisabledShortcuts() throws {
+    var old = ShortcutBinding.defaults
+    let next = try #require(old.firstIndex { $0.id == "workspace-next" })
+    let previous = try #require(old.firstIndex { $0.id == "workspace-previous" })
+    old[next] = ShortcutBinding(id: "workspace-next",keyCode: 124,modifiers: UInt32(controlKey | optionKey | cmdKey),key: "→")
+    old[previous].enabled = false
+    let updated = ShortcutBinding.addingMissingDefaults(to: old)
+    #expect(updated[next].keyCode == 48 && updated[next].modifiers == UInt32(optionKey))
+    #expect(updated[previous] == old[previous])
+    old[next].keyCode = 7
+    #expect(ShortcutBinding.addingMissingDefaults(to: old)[next] == old[next])
 }
 
 @Test @MainActor

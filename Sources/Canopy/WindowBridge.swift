@@ -71,12 +71,14 @@ protocol WindowManaging: AnyObject {
     func minimumSize(_ key: String) -> CGSize?
     func beginLiveResize(_ keys: Set<String>)
     func endLiveResize()
+    func resizeLiveWindows(_ frames: [String:LayoutRect])
     func verifyMove(_ key: String, to rect: LayoutRect) -> Bool
 }
 
 extension WindowManaging {
     func beginLiveResize(_ keys: Set<String>) {}
     func endLiveResize() {}
+    func resizeLiveWindows(_ frames: [String:LayoutRect]) { for (key,rect) in frames { _ = move(key,to: rect) } }
     var destroyedWindowIDs: Set<String> { [] }
     var windowAliases: [String:String] { [:] }
     @discardableResult func forgetWindow(_ key: String) -> Bool { true }
@@ -112,7 +114,8 @@ final class WindowBridge: WindowManaging {
     private(set) var windowAliases: [String:String] = [:]
     private var observedMinimums: [String:CGSize] = [:]
     private var liveResizing = false
-    private var resizeApplications: [pid_t:AXUIElement] = [:]
+    private var resizeState: NativeResizeState?
+    private var resizePump: LatestResizePump?
     private var resizeAttempts: [String:(target: LayoutRect,before: LayoutRect)] = [:]
     func minimumSize(_ key: String) -> CGSize? { observedMinimums[key] }
     private var pendingMinimization: [String:(value: Bool,until: Date)] = [:]
@@ -335,19 +338,29 @@ final class WindowBridge: WindowManaging {
 
     func beginLiveResize(_ keys: Set<String>) {
         endLiveResize(); liveResizing = true
-        for pid in Set(keys.compactMap { windows[$0]?.pid }) {
-            let application = AXUIElementCreateApplication(pid)
-            if attribute(application,"AXEnhancedUserInterface") as? Bool == true,
-               AXUIElementSetAttributeValue(application,"AXEnhancedUserInterface" as CFString,kCFBooleanFalse) == .success {
-                resizeApplications[pid] = application
-            }
-        }
+        let state = NativeResizeState(windows: Dictionary(uniqueKeysWithValues: keys.compactMap { key in
+            windows[key].map { (key,NativeResizeWindow(element: $0.element,pid: $0.pid)) }
+        }))
+        resizeState = state; resizePump = LatestResizePump { state.apply($0) }
     }
+    func resizeLiveWindows(_ frames: [String:LayoutRect]) { resizePump?.submit(frames) }
     func endLiveResize() {
-        for application in resizeApplications.values {
-            _ = AXUIElementSetAttributeValue(application,"AXEnhancedUserInterface" as CFString,kCFBooleanTrue)
+        if let state = resizeState,let pump = resizePump {
+            pump.finish { state.finish() }
+            for (key,target) in state.targets {
+                if let before = state.originals[key] { resizeAttempts[key] = (target,before) }
+            }
+            #if DEBUG
+            let report: [String:Any] = ["nativeBatches":state.batches,"attributeWrites":state.writes,
+                "frameReads":state.frameReads,"longestNativeBatchMilliseconds":state.longestBatchMilliseconds,
+                "nativeWorkOnMainThread":state.nativeWorkOnMainThread,"windows":state.targets.keys.sorted(),
+                "finalReadbacks":state.actual.mapValues { [$0.x,$0.y,$0.width,$0.height] }]
+            if let data = try? JSONSerialization.data(withJSONObject: report,options: [.sortedKeys]) {
+                try? data.write(to: FileManager.default.temporaryDirectory.appendingPathComponent("canopy-native-resize.json"),options: .atomic)
+            }
+            #endif
         }
-        resizeApplications = [:]; liveResizing = false
+        resizePump = nil; resizeState = nil; liveResizing = false
         #if DEBUG
         flushMoveDiagnostics()
         #endif

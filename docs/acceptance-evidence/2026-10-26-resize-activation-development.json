@@ -1,0 +1,55 @@
+{
+  "date": "2026-10-26",
+  "version": "0.8.0",
+  "stage": "development",
+  "automated": {
+    "xctest": 33,
+    "swiftTesting": 107,
+    "passed": 140
+  },
+  "nativeResize": {
+    "attributeWrites": 3,
+    "finalReadbacks": {
+      "55A34C15-403C-43B1-8B98-9799B69203BD": [
+        848,
+        73,
+        656,
+        901
+      ],
+      "F9F33225-ECCD-4F4C-A41F-43019BEB9870": [
+        8,
+        73,
+        832,
+        901
+      ]
+    },
+    "frameReads": 4,
+    "longestNativeBatchMilliseconds": 20.461250096559525,
+    "nativeBatches": 1,
+    "windows": [
+      "55A34C15-403C-43B1-8B98-9799B69203BD",
+      "F9F33225-ECCD-4F4C-A41F-43019BEB9870"
+    ]
+  },
+  "nativeResizeLayering": {
+    "geometryUpdates": 1,
+    "nativeWindowCount": 2,
+    "workspaceBackgroundOrdersDuringResize": 0
+  },
+  "nativeApps": [
+    "ChatGPT",
+    "Google Chrome"
+  ],
+  "limits": [
+    "The tool produced one resize tick. Continuous physical-drag smoothness is not certified by these metrics."
+  ],
+  "initialCaptureNote": "Native placement ran on the worker queue; finalization-thread identity was not instrumented in this initial native capture. Later code and the stalled-worker regression explicitly queue finalization off main.",
+  "pending": [
+    "Corrected universal-build relaunch after Mac unlock",
+    "Continuous physical resize appearance",
+    "Native Dock activation routing",
+    "Physical global Option-Tab delivery"
+  ],
+  "blocker": "Mac locked; user confirmed they are away from it.",
+  "workspacePreservation": "The saved workspace was preserved when shared-display validation failed; corrected validation and placement pass the regression suite. No reset or replacement of the saved layouts was performed."
+}

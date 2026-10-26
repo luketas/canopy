@@ -11,13 +11,17 @@ final class WindowEvents {
     var onChange: (() -> Void)?
     var onDestroyed: ((AXUIElement) -> Void)?
     var onSpaceChanged: (() -> Void)?
+    var onFocusChange: (() -> Void)?
 
     init() {
         let center = NSWorkspace.shared.notificationCenter
         for name in [NSWorkspace.didLaunchApplicationNotification,NSWorkspace.didTerminateApplicationNotification,
                      NSWorkspace.didActivateApplicationNotification,NSWorkspace.didUnhideApplicationNotification] {
             workspaceTokens.append(center.addObserver(forName: name,object: nil,queue: .main) { [weak self] _ in
-                Task { @MainActor in self?.schedule() }
+                Task { @MainActor in
+                    if name == NSWorkspace.didActivateApplicationNotification || name == NSWorkspace.didUnhideApplicationNotification { self?.onFocusChange?() }
+                    self?.schedule()
+                }
             })
         }
         workspaceTokens.append(center.addObserver(forName: NSWorkspace.activeSpaceDidChangeNotification,object: nil,queue: .main) { [weak self] _ in
@@ -36,8 +40,10 @@ final class WindowEvents {
                     guard let context else { return }
                     let object = Unmanaged<WindowEvents>.fromOpaque(context).takeUnretainedValue()
                     let destroyed = notification as String == kAXUIElementDestroyedNotification as String
+                    let focused = notification as String == kAXFocusedWindowChangedNotification as String || notification as String == kAXMainWindowChangedNotification as String
                     Task { @MainActor in
                         if destroyed { object.onDestroyed?(element) }
+                        if focused { object.onFocusChange?() }
                         object.schedule()
                     }
                 }

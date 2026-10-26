@@ -377,7 +377,7 @@ final class DesktopCoordinator {
         }
     }
     private func installControls(_ plans: [DesktopLayoutPlan]) {
-        guard let store,!isInteracting,!store.interactiveDrag,cameraPanel == nil,store.isArranging,!isFullScreenApplication else { return }
+        guard let store,!isInteracting,!store.interactiveDrag,cameraPanel == nil,store.isArranging,store.isResizing || !isFullScreenApplication else { return }
         for panel in panels { panel.close() }; panels = []
         for id in Array(workspaceBars.keys) where !plans.contains(where: { $0.display.id == id }) {
             workspaceBars.removeValue(forKey: id)?.close()
@@ -386,6 +386,10 @@ final class DesktopCoordinator {
             if let workspace = store.displays.first(where: { $0.id == plan.display.id }) {
                 let bar = (workspaceBars[plan.display.id]?.contentView as? DesktopWorkspaceBar) ?? DesktopWorkspaceBar(grids: workspace.grids,active: workspace.activeGridID)
                 bar.update(grids: workspace.grids,active: workspace.activeGridID)
+                let next = store.preferences.shortcuts.first { $0.id == "workspace-next" }?.label ?? "Disabled"
+                let previous = store.preferences.shortcuts.first { $0.id == "workspace-previous" }?.label ?? "Disabled"
+                bar.toolTip = "Next grid: \(next) · Previous grid: \(previous)"
+                bar.setAccessibilityHelp(bar.toolTip)
                 bar.onSelect = { [weak store] id in store?.selectedDisplay = plan.display.id; store?.selectWorkspaceGrid(id,activate: true) }
                 bar.onOpen = { [weak store] in store?.onOpenWorkspace?() }
                 let rect = LayoutRect(x: plan.display.frame.x,y: plan.display.frame.y,width: plan.display.frame.width,height: DesktopWorkspaceBar.height)

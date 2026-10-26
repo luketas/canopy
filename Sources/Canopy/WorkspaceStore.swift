@@ -118,6 +118,7 @@ final class WorkspaceStore: ObservableObject {
     #endif
     private var placementTargets: [String:LayoutRect] = [:]
     private var layoutFocusedWindow: String?
+    private var gridActivationHistory: [String] = []
     var recoveryMinimized = Set<String>()
     private let screenProvider: () -> [DisplayDescriptor]
     private var events: WindowEvents?
@@ -161,6 +162,7 @@ final class WorkspaceStore: ObservableObject {
         if self.bridge is WindowBridge {
             let observer = WindowEvents()
             observer.onChange = { [weak self] in self?.refresh() }
+            observer.onFocusChange = { [weak self] in self?.routeFocusedWindowToWorkspace() }
             observer.onSpaceChanged = { [weak self] in self?.handleSpaceChange() }
             observer.onDestroyed = { [weak self] element in
                 guard let self else { return }
@@ -287,6 +289,7 @@ final class WorkspaceStore: ObservableObject {
         }
         guard !interactiveDrag else { return }
         let oldRecords = records
+        let oldLayouts = displays
         var savedIDs = Set<String>()
         let candidates = (pendingRecovery+records.filter { movedWindows.contains($0.id) }+records)
             .filter { savedIDs.insert($0.id).inserted }
@@ -324,14 +327,6 @@ final class WorkspaceStore: ObservableObject {
         dormantWindows = Set(absent.map(\.id))
         let retained = Set(records.map(\.id))
         var changed = records != oldRecords
-        if isArranging,let key = bridge.focusedWindow(),key != layoutFocusedWindow,occludedWindows.contains(key),bridge.windows[key]?.minimized == false,
-           let index = displays.firstIndex(where: { $0.root?.leaf(containing: key) != nil }),let leaf = displays[index].root?.leaf(containing: key) {
-            occludedWindows.remove(key); displays[index].root?.select(window: key); selectedWindow = key
-            if displays[index].focus.flatMap({ displays[index].root?.node($0) })?.allWindows.contains(key) == false {
-                displays[index].focus = leaf.id; displays[index].cameraFrame = nil
-            }
-            changed = true
-        }
         for index in displays.indices {
             for g in displays[index].grids.indices {
                 for missing in (displays[index].grids[g].root?.allWindows ?? []).filter({ !retained.contains($0) && !Self.isDesktop($0) }) {
@@ -342,11 +337,51 @@ final class WorkspaceStore: ObservableObject {
         }
         if let selected = selectedWindow, !live.contains(selected) { selectedWindow = nil }
         let availability = live.subtracting(unavailable)
-        if isArranging && (changed || lastAvailability != availability) { applyLayout() }
+        let routed = routeFocusedWindowToWorkspace(requireNewFocus: true)
+        // A title/document change updates the inspector, not desktop stacking.
+        // Re-covering apps for metadata-only AX notifications causes flashing.
+        if !routed,isArranging && (displays != oldLayouts || lastAvailability != availability) { applyLayout() }
         lastAvailability = availability
         destroyedWindows = []
         events?.synchronize(bridge.windows)
         if changed { persist() }
+    }
+
+    /// Dock clicks, app activation, and native window selection navigate to
+    /// the owning Canopy grid. They never enroll a window into another grid.
+    @discardableResult func routeFocusedWindowToWorkspace(requireNewFocus: Bool = false) -> Bool {
+        guard isArranging,!isDemo,!interactiveDrag,!workspaceSwitchPending,!spaceTransitionPending,
+              let key = bridge.focusedWindow(),(!requireNewFocus || key != layoutFocusedWindow),let window = bridge.windows[key],
+              window.onScreen,!window.minimized,!window.fullScreen else { return false }
+        // Prefer an already active arrangement for shared windows.
+        let connected = Set(displayDescriptors.map(\.id))
+        let eligible = displays.indices.filter { connected.contains(displays[$0].id) }
+        let active = eligible.first { displays[$0].root?.leaf(containing: key) != nil }
+        var destination: (display: Int,grid: String)?
+        if let active { destination = (active,displays[active].activeGridID) }
+        else {
+            let candidates = eligible.flatMap { i in
+                displays[i].grids.filter { $0.root?.leaf(containing: key) != nil }.map { (display: i,grid: $0.id) }
+            }
+            destination = candidates.min { a,b in
+                (gridActivationHistory.firstIndex(of: a.grid) ?? Int.max) < (gridActivationHistory.firstIndex(of: b.grid) ?? Int.max)
+            }
+        }
+        guard let destination,
+              let g = displays[destination.display].grids.firstIndex(where: { $0.id == destination.grid }),
+              let leaf = displays[destination.display].grids[g].root?.leaf(containing: key) else { return false }
+        let switching = displays[destination.display].activeGridID != destination.grid
+        if !switching,lastNativeVisible.contains(key) { selectedWindow = key; return false }
+        displays[destination.display].grids[g].root?.select(window: key)
+        let grid = displays[destination.display].grids[g]
+        if grid.focus.flatMap({ grid.root?.node($0) })?.allWindows.contains(key) != true || grid.cameraFrame != nil {
+            displays[destination.display].grids[g].focus = leaf.id
+            displays[destination.display].grids[g].cameraFrame = nil
+        }
+        selectedDisplay = displays[destination.display].id
+        if switching { selectWorkspaceGrid(destination.grid,activate: true) }
+        else { selectedWindow = key; applyLayout(activating: key) }
+        return true
     }
 
     func synchronizeScreens() {
@@ -700,15 +735,16 @@ final class WorkspaceStore: ObservableObject {
     func applyLayout(activating keyToActivate: String? = nil) {
         guard !workspaceSwitchPending else { return }
         guard isArranging, !isDemo, bridge.trusted, !spaceTransitionPending else { return }
-        if let focused = bridge.focusedWindow(),bridge.windows[focused]?.fullScreen == true { onPause?(); return }
+        if !isResizing,let focused = bridge.focusedWindow(),bridge.windows[focused]?.fullScreen == true { onPause?(); return }
         layoutVerification?.cancel()
         let plans = desktopPlans()
         let native = plans.flatMap(\.nativePlacements)
         let visible = Set(native.map(\.window))
         applyingGeometryOnly = isResizing && visible == lastNativeVisible
         defer { applyingGeometryOnly = false }
+        if isResizing,!applyingGeometryOnly { bridge.endLiveResize() }
         let managed = Set(displays.flatMap { $0.allGridWindows }).subtracting(unavailable).filter { bridge.windows[$0] != nil }
-        for key in managed {
+        for key in managed where !applyingGeometryOnly {
                 if !movedWindows.contains(key) {
                     // Capture immediately before the first move this session, never from an old saved frame.
                     if let i = records.firstIndex(where: { $0.id == key }),
@@ -721,13 +757,20 @@ final class WorkspaceStore: ObservableObject {
         if !applyingGeometryOnly { persist() }
         onLayoutWillApply?(plans)
         // Upgrade older sessions once. Workspace changes never minimize windows.
-        for key in managerMinimized where bridge.setMinimized(key,false) { managerMinimized.remove(key) }
+        if !applyingGeometryOnly {
+            for key in managerMinimized where bridge.setMinimized(key,false) { managerMinimized.remove(key) }
+        }
         var moved = 0
-        for placement in native {
-            let current = bridge.windows[placement.window].flatMap { bridge.frame(of: $0.element) }
-            if placementTargets[placement.window] != placement.rect || current.map({ !WindowBridge.frameFitsCell($0,in: placement.rect) }) != false {
-                _ = bridge.move(placement.window,to: placement.rect); moved += 1
-                placementTargets[placement.window] = placement.rect
+        if applyingGeometryOnly {
+            bridge.resizeLiveWindows(Dictionary(native.map { ($0.window,$0.rect) },uniquingKeysWith: { _,new in new }))
+            for placement in native { placementTargets[placement.window] = placement.rect }
+        } else {
+            for placement in native {
+                let current = bridge.windows[placement.window].flatMap { bridge.frame(of: $0.element) }
+                if placementTargets[placement.window] != placement.rect || current.map({ !WindowBridge.frameFitsCell($0,in: placement.rect) }) != false {
+                    _ = bridge.move(placement.window,to: placement.rect); moved += 1
+                    placementTargets[placement.window] = placement.rect
+                }
             }
         }
         occludedWindows = managed.subtracting(visible)
@@ -740,6 +783,7 @@ final class WorkspaceStore: ObservableObject {
             layoutFocusedWindow = bridge.focusedWindow()
         }
         lastNativeVisible = visible
+        if isResizing,!applyingGeometryOnly { bridge.beginLiveResize(visible) }
         #if DEBUG
         lastNativeMoveCount = moved
         let diagnostic: [String:Any] = ["time":ProcessInfo.processInfo.systemUptime,"grid":currentGridName,"moves":moved,
@@ -934,15 +978,21 @@ final class WorkspaceStore: ObservableObject {
         workspaceSwitchGeneration += 1; workspaceSwitchPending = false
     }
     func cycleWorkspace(_ delta: Int) {
-        guard let workspace = current,let index = workspace.grids.firstIndex(where: { $0.id == workspace.activeGridID }),!workspace.grids.isEmpty else { return }
-        let destination = (index+delta%workspace.grids.count+workspace.grids.count)%workspace.grids.count
-        selectWorkspaceGrid(workspace.grids[destination].id,activate: true)
+        guard let workspace = current else { return }
+        let live = Set(listedRecords.map(\.id))
+        let grids = workspace.grids.filter { $0.root?.allWindows.contains(where: { live.contains($0) && !Self.isDesktop($0) }) == true }
+        guard !grids.isEmpty else { return }
+        let index = grids.firstIndex { $0.id == workspace.activeGridID } ?? (delta >= 0 ? -1 : 0)
+        let destination = (index+delta%grids.count+grids.count)%grids.count
+        selectWorkspaceGrid(grids[destination].id,activate: true)
     }
     func selectWorkspaceGrid(_ id: String,activate: Bool = false) {
         guard let i = displays.firstIndex(where: { $0.id == selectedDisplay }),displays[i].activeGridID != id,
               displays[i].grids.contains(where: { $0.id == id }) else { return }
         resizeWork?.invalidate(); resizeWork = nil; isResizing = false; bridge.endLiveResize()
         cancelEditorDrag(); displays[i].activeGridID = id
+        gridActivationHistory.removeAll { $0 == id }; gridActivationHistory.insert(id,at: 0)
+        gridActivationHistory = Array(gridActivationHistory.prefix(64))
         verifiedLayouts = nil; selectedWindow = nil; layoutVerification?.cancel(); persist()
         workspaceSwitchGeneration += 1; let generation = workspaceSwitchGeneration
         let apply = { [weak self] in

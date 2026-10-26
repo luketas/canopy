@@ -2,7 +2,7 @@
 
 An independent, MIT-licensed macOS window manager inspired by [TrellisWM](https://trelliswm.app/). Windows belong to nested spaces: dock, group them as tabs, and zoom into the work you need.
 
-**Version 0.7.0:** live resizing updates window geometry without raising workspace backgrounds over apps. Floating windows can fill empty slots, split beside a slot or the whole grid, or join a slot as tabs. Workspace switching retains the native layering introduced in 0.6.0. See [acceptance results](acceptance.md).
+**Version 0.8.0:** live resizing updates window geometry without raising workspace backgrounds over apps. Floating windows can fill empty slots, split beside a slot or the whole grid, or join a slot as tabs. Workspace switching retains the native layering introduced in 0.6.0. See [acceptance results](acceptance.md).
 
 ## Build and run
 
@@ -20,7 +20,7 @@ Use the app bundle for permission identity and URL registration. Ad-hoc signatur
 
 ## Workspace grid tabs
 
-Click **New Grid** to start empty. The sidebar separates **In this grid** from **Available windows**. Drag a window into the canvas or use its + button. Drop on a card edge to split, or in the center to create app tabs. Use − in the sidebar, × on an app tab, or drag to **Drop here to remove**. Removing a window keeps its app open and leaves other grids intact. Drag onto another workspace tab to move the window there; the destination opens after the drop. Use **Duplicate Grid** in a grid tab’s context menu when you want a copy. **Apply Grid** does not add unchosen windows; **Add All** is an explicit shortcut. Search filters the window lists. Right-click a tab to rename it; its × closes it. At least one grid remains. Undo restores a closed grid. Each display keeps its own tabs, and each tab has its own zoom, history, and saved-view slots. Windows can appear in different arrangements across tabs; only the active arrangement is applied to the desktop. Inactive-only windows remain managed until their grid is selected or Restore Windows is used. Each grid can contain its own subset of windows, including windows also used by another grid.
+Click **New Grid** to start empty. The sidebar separates **In this grid** from **Available windows**. Drag a window into the canvas or use its + button. Drop on a card edge to split, or in the center to create app tabs. Use − in the sidebar, × on an app tab, or drag to **Drop here to remove**. Removing a window keeps its app open and leaves other grids intact. Drag onto another workspace tab to move the window there; the destination opens after the drop. Use **Duplicate Grid** in a grid tab’s context menu when you want a copy. **Apply Grid** does not add unchosen windows; **Add All** is an explicit shortcut. Search filters the window lists. Right-click a tab to rename it; its × closes it. At least one grid remains. Undo restores a closed grid. Each display keeps its own tabs, and each tab has its own zoom, history, and saved-view slots. Windows can appear in different arrangements across tabs; only the active arrangement is applied to the desktop. Inactive-only windows remain managed until their grid is selected or Restore Windows is used. Each grid can contain its own subset of windows, including windows also used by another grid. Activating a window assigned to another workspace selects that workspace. Shared windows prefer an already active workspace; floating apps remain floating.
 
 Use **Columns 1 / 2 / 3 / 4** to set full-height columns. Extra apps stack vertically within them. Drag an app onto a **Column N** header to stack it there, or into an empty column to fill it. Drop at a card’s left/right edge to create an adjacent column; use **Give Own Column** in its context menu for the same action. Empty columns stay available as drop targets. Known native minimum widths widen columns when the display has room; an arrangement that cannot fit safely is rejected. Changing the column count uses currently available windows in that grid and supports Undo.
 
@@ -63,7 +63,7 @@ Settings also includes configurable global shortcuts, docking modifiers, tab str
 
 | Action | Shortcut |
 | --- | --- |
-| Previous / next workspace | Control + Option + Command + Left / Right |
+| Previous / next workspace | Option + Shift + Tab / Option + Tab |
 | Workspace 1–9 in tab order | Control + Option + Command + number |
 | Everything | Control + Option + Space |
 | Desktop | Control + Option + D |
@@ -74,7 +74,7 @@ Settings also includes configurable global shortcuts, docking modifiers, tab str
 | Recall / save view 1–9 | Control + Option (+ Shift) + number |
 | Undo / redo layout inside Canopy | Command + Z / Command + Shift + Z |
 
-Workspace shortcuts work while another app is focused, and select without arranging when Canopy is paused. Existing pane/view shortcuts retain their bindings. Upgrades add missing workspace bindings; if a new default conflicts with a customization, that new binding starts disabled.
+Workspace-cycle defaults are Option–Tab forward and Option–Shift–Tab backward. Cycling skips empty grids and grids with no available windows on this Desktop. Existing default cycle bindings migrate; customized and disabled bindings remain unchanged. Workspace shortcuts work while another app is focused, and select without arranging when Canopy is paused. Existing pane/view shortcuts retain their bindings. Upgrades add missing workspace bindings; if a new default conflicts with a customization, that new binding starts disabled.
 
 Click a shortcut in Settings to record a replacement. Escape cancels; Delete disables it. Internal duplicates are rejected and system conflicts are reported.
 

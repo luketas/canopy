@@ -51,13 +51,13 @@ Drag a floating window by its title bar and follow the highlighted preview:
 
 Floating windows need no modifier key. Drags of windows already in the current grid require **Option** by default; change this in Settings. Press **Escape** to cancel. A window brought forward from another Canopy grid can join the current grid while keeping its arrangement in the other tab.
 
-Drag a seam to resize both sides. Live resizing changes geometry without repeatedly raising the workspace background over the apps, and the whole drag creates one Undo step. Double-click a seam to reset its split.
+Drag a seam to resize both sides. Native resize writes run on a background worker that keeps only the latest pointer destination; title-only app updates do not reapply the desktop layout. The whole drag creates one Undo step. Double-click a seam to reset its split.
 
 <sub>These are feature illustrations, not app screenshots. See the <a href="docs/acceptance.md">native acceptance record</a> for tested behavior.</sub>
 
 ## Get started
 
-Canopy is in early development. **macOS 14+**, **Swift 6**, and Xcode Command Line Tools are required. Apple silicon and Intel builds are supported. The current version is **0.7.0**; public Developer ID signing and notarization are not yet provided.
+Canopy is in early development. **macOS 14+**, **Swift 6**, and Xcode Command Line Tools are required. Apple silicon and Intel builds are supported. The current version is **0.8.0**; public Developer ID signing and notarization are not yet provided.
 
 ### Build on your Mac
 
@@ -90,18 +90,20 @@ Keep using one app bundle path for a consistent macOS permission identity. Local
 
 | Action | Default shortcut |
 | --- | --- |
-| Previous / next workspace | ⌃ ⌥ ⌘ ← / → |
+| Next / previous workspace | ⌥ Tab / ⇧ ⌥ Tab |
 | Workspace 1–9 | ⌃ ⌥ ⌘ 1–9 |
 | Previous / next pane | ⌃ ⌥ ← / → |
 | Show everything | ⌃ ⌥ Space |
 | Frame the focused window | ⌃ ⌥ Return |
 | Undo / redo in the editor | ⌘ Z / ⇧ ⌘ Z |
 
-⌃ Control · ⌥ Option · ⌘ Command · ⇧ Shift. Shortcuts are configurable in Settings. [All shortcuts and URL commands →](docs/usage.md#default-keyboard-shortcuts)
+⌃ Control · ⌥ Option · ⌘ Command · ⇧ Shift. Shortcuts work globally and are configurable in Settings. Cycling skips empty grids and grids whose apps are unavailable on the current Desktop. Older default workspace-cycle bindings migrate to Option–Tab; custom and disabled bindings are preserved. [All shortcuts and URL commands →](docs/usage.md#default-keyboard-shortcuts)
 
 ## Permissions, privacy, and current limits
 
 **Accessibility** lets Canopy discover, position, and focus windows. **Screen Recording** is optional for still previews held in memory; workspace switching and docking do not require it. Canopy has no telemetry or app network calls.
+
+Activating an app window assigned only to another Canopy workspace selects that workspace instead of leaving the window over the current grid. Shared windows stay in the current workspace, and unassigned apps remain floating.
 
 Only windows on the current macOS Desktop are eligible. Full-screen windows are excluded, and Space changes pause arrangement. App minimum sizes can constrain a split. One window shared by differently sized grids still has to resize when you switch: it remains one physical window.
 
@@ -114,7 +116,7 @@ swift test
 bash scripts/build-test-app.sh
 ```
 
-The automated suite currently has **128 passing checks**. It uses injected window bridges and temporary storage, so it never moves your real windows. The separate native fixture supports manual Arrange/Restore checks. CI runs the suite and produces a universal app bundle and source archive.
+The automated suite currently has **140 passing checks**. It uses injected window bridges and temporary storage, so it never moves your real windows. The separate native fixture supports manual Arrange/Restore checks. CI runs the suite and produces a universal app bundle and source archive.
 
 Bug reports with the app version, macOS version, and steps to reproduce are welcome. For window movement changes, include native frame readbacks and restoration results. Avoid attaching private window titles or unredacted workspace files.
 

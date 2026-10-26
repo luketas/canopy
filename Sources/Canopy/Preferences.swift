@@ -44,8 +44,8 @@ struct ShortcutBinding: Codable, Equatable, Identifiable {
             result.append(ShortcutBinding(id: "save.\(i+1)",keyCode: UInt32(code),modifiers: m | UInt32(shiftKey),key: "\(i+1)"))
         }
         let workspaceModifiers = m | UInt32(cmdKey)
-        result.append(ShortcutBinding(id: "workspace-previous",keyCode: 123,modifiers: workspaceModifiers,key: "←"))
-        result.append(ShortcutBinding(id: "workspace-next",keyCode: 124,modifiers: workspaceModifiers,key: "→"))
+        result.append(ShortcutBinding(id: "workspace-previous",keyCode: 48,modifiers: UInt32(optionKey | shiftKey),key: "Tab"))
+        result.append(ShortcutBinding(id: "workspace-next",keyCode: 48,modifiers: UInt32(optionKey),key: "Tab"))
         for (i,code) in [18,19,20,21,23,22,26,28,25].enumerated() {
             result.append(ShortcutBinding(id: "workspace.\(i+1)",keyCode: UInt32(code),modifiers: workspaceModifiers,key: "\(i+1)"))
         }
@@ -53,6 +53,14 @@ struct ShortcutBinding: Codable, Equatable, Identifiable {
     }
     static func addingMissingDefaults(to existing: [ShortcutBinding]) -> [ShortcutBinding] {
         var result = existing
+        let oldModifiers = UInt32(controlKey | optionKey | cmdKey)
+        for i in result.indices {
+            let oldCode: UInt32? = result[i].id == "workspace-previous" ? 123 : result[i].id == "workspace-next" ? 124 : nil
+            guard let oldCode,result[i].enabled,result[i].keyCode == oldCode,result[i].modifiers == oldModifiers,
+                  let replacement = defaults.first(where: { $0.id == result[i].id }),
+                  !result.contains(where: { $0.id != replacement.id && $0.enabled && $0.keyCode == replacement.keyCode && $0.modifiers == replacement.modifiers }) else { continue }
+            result[i] = replacement
+        }
         for var binding in defaults where !existing.contains(where: { $0.id == binding.id }) {
             if result.contains(where: { $0.enabled && $0.keyCode == binding.keyCode && $0.modifiers == binding.modifiers }) { binding.enabled = false }
             result.append(binding)

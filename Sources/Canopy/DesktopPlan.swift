@@ -82,8 +82,19 @@ extension WorkspaceStore {
         return LayoutRect(x: frame.x,y: frame.y+top,width: frame.width,height: max(1,frame.height-top)).inset(gap)
     }
     func desktopPlans() -> [DesktopLayoutPlan] {
-        displayDescriptors.compactMap { descriptor in
+        let descriptors = displayDescriptors
+        var owners: [String:String] = [:]
+        // Saved layouts can share a physical window across displays, including
+        // disconnected displays. Place it once, preferring the selected display.
+        let priority = descriptors.filter { $0.id == selectedDisplay } + descriptors.filter { $0.id != selectedDisplay }
+        for descriptor in priority {
+            for key in displays.first(where: { $0.id == descriptor.id })?.root?.allWindows ?? [] where owners[key] == nil {
+                owners[key] = descriptor.id
+            }
+        }
+        return descriptors.compactMap { descriptor in
             guard let workspace = displays.first(where: { $0.id == descriptor.id }) else { return nil }
+            let unavailable = self.unavailable.union(owners.filter { $0.value != descriptor.id }.map(\.key))
             let root = workspace.root ?? LayoutNode(emptyColumn: "empty-workspace-\(descriptor.id)")
             let viewport = desktopViewport(descriptor)
             let world = LayoutRect(width: viewport.width,height: viewport.height)

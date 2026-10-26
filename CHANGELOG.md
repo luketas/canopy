@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.8.0 — 2026-10-26
+
+Move native live-resize IPC off the input thread, keep only the latest pending geometry, and read frames at the start and end of a gesture. Fence outstanding writes before restoring or switching workspaces. Stop reapplying the desktop for title-only notifications.
+
+Route native app/window activation to its existing workspace instead of leaving inactive-grid windows above the current grid. Preserve shared-window membership and current-Desktop boundaries. Use Option–Tab / Option–Shift–Tab to cycle nonempty available workspaces, migrating old defaults while preserving customized, disabled, and conflicting bindings. Add shortcut hints to the desktop workspace bar. Keep saved shared-display layouts loadable and plan each shared native window once, with connected-display focus routing.
+
 ## 0.7.0 — 2026-10-19
 
 Give live resizing a geometry-only path: coalesce pointer updates on the common run loop, skip activation and background restacking, reposition existing seam controls, and save once on release. Skip unchanged native position/size writes and temporarily suppress accessibility-enhanced resize animation for participating apps. Keep seam deltas relative to the initial geometry.

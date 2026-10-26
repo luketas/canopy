@@ -22,6 +22,7 @@ final class FakeWindows: WindowManaging {
     var runningBundleIDs: Set<String> = ["fixture.a","fixture.b","fixture.c"]
     var minimizeRequests: [(String,Bool)] = []
     var focused: String?
+    var discoveredTitles: [String:String] = [:]
     var verificationCount = 0
     var operations: [String] = []
     var deferMoves = false
@@ -43,6 +44,7 @@ final class FakeWindows: WindowManaging {
         windows.values.filter { !excluded.contains($0.record.bundleID) }.sorted { $0.id < $1.id }.map { window in
             var result = window
             if let record = saved.first(where: { $0.id == result.id }) { result.record = record }
+            if let title = discoveredTitles[result.id] { result.record.title = title }
             return result
         }
     }

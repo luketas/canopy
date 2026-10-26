@@ -1,6 +1,6 @@
 # Native acceptance checks
 
-Current automated evidence: **128 tests pass (33 XCTest and 95 Swift Testing)** on 2026-10-19. Native evidence below separates controlled fixtures, development runs against actual third-party apps, and final-package smoke checks. Physical multiple displays remain unverified.
+Current automated evidence: **140 tests pass (33 XCTest and 107 Swift Testing)** on 2026-10-26. Native evidence below separates controlled fixtures, development runs against actual third-party apps, and final-package smoke checks. Physical multiple displays remain unverified.
 
 Environment: macOS 26.2 (25C56), Apple silicon, Apple Swift 6.2. The native test session uses `scripts/build-test-app.sh` and `dist/CanopyFixture.app`. This embeds restricted discovery in the test bundle and isolates persistence under `Canopy/TestSessions`. Export Window Frames records the fixture's own actual geometry. The baseline includes three 640 × 432 windows, with two duplicate titles, at (100, 828), (210, 758), and (320, 688). Compare after Arrange and Restore; do not substitute source assertions for native frame evidence.
 
@@ -9,6 +9,14 @@ Additional native observations: shortcut recording enters its waiting state and 
 The renewed reviewer scored all three fixes **resolved**, disposition **ship** for that fix list, after inspecting exact 1160 × 760 and expanded 3440 × 1410. The expanded view also confirms Desktop-specific content. The window was returned to 1160 × 760. No broader native-behavior approval is implied.
 
 On 2026-10-18, System Settings initially showed Canopy's Accessibility switch **on**, but `AXIsProcessTrusted()` was false even after relaunch. The user authorized refreshing only Canopy's grant. Toggling alone did not resolve it; removing its stale entry and selecting the exact current bundle did. The user completed the later Touch ID prompt directly. No TCC reset, other-app permission change, or personal-window arrangement was used.
+
+## Version 0.8.0 input-thread resize work and activation routing — 2026-10-26
+
+A dedicated native worker keeps one in-flight resize batch and one replaceable latest destination. Input/rendering does not perform the repeated native frame reads and writes. A completion fence precedes restore and workspace switches. Metadata-only title/document notifications no longer reapply native layout or stacking. Focus notifications select a connected owning grid; shared windows prefer active grids and unassigned windows remain floating. The new global cycle defaults are Option–Tab and Option–Shift–Tab, with existing customizations preserved.
+
+The automated suite passes 140 checks (33 XCTest + 107 Swift Testing), including a stalled-worker/coalescing test, ownership routing, title-only updates, default migration, stale-focus protection, and shared-display persistence/placement. A debug build resized actual ChatGPT and Chrome windows: three native attribute writes, four frame readbacks total, one worker batch of approximately 20.46 ms, and zero workspace-background ordering calls. The tool produced one resize tick, so this is not continuous physical-drag or subjective no-blink certification. The saved-layout relaunch check exposed a preexisting validator inconsistency for a window shared across displays; the file was preserved, and regression checks now cover round-tripping shared saved layouts and placing a native window only once.
+
+Direct ChatGPT interaction was blocked by the computer-control tool. The Mac then locked before final corrected-build relaunch and physical shortcut/activation checks. Those acceptance items remain pending. See `acceptance-evidence/2026-10-26-resize-activation-development.json`.
 
 ## Version 0.7.0 live resizing and floating docking — 2026-10-19
 
