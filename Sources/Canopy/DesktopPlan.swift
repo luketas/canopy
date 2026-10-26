@@ -53,10 +53,10 @@ extension WorkspaceStore {
                           second: stackedArrangement(Array(nodes.dropFirst(count)),axis: axis),
                           axis: axis,ratio: Double(count)/Double(nodes.count))
     }
-    func performCommand(_ id: String) {
+    func performCommand(_ id: String,at pointer: CGPoint? = nil) {
         if !isDemo {
-            let point = DesktopCoordinator.screenPoint()
-            if let display = displayDescriptors.first(where: { $0.frame.contains(x: point.x,y: point.y) }) { selectedDisplay = display.id }
+            let point = pointer ?? DesktopCoordinator.screenPoint()
+            if let display = displayDescriptors.first(where: { $0.monitorBounds.contains(x: point.x,y: point.y) }) { selectedDisplay = display.id }
         }
         switch id {
         case "everything": showEverything()
@@ -64,6 +64,9 @@ extension WorkspaceStore {
         case "zoom-out": zoomOut()
         case "zoom-in": focusTowardPointer()
         case "frame": frameFocusedWindow()
+        case "auto-layout":
+            if isDemo { useRealWindows() }
+            if !isDemo { autoLayoutCurrentMonitor() }
         case "workspace-previous": cycleWorkspace(-1)
         case "workspace-next": cycleWorkspace(1)
         case "previous": selectNeighbor(-1)
@@ -82,7 +85,7 @@ extension WorkspaceStore {
         return LayoutRect(x: frame.x,y: frame.y+top,width: frame.width,height: max(1,frame.height-top)).inset(gap)
     }
     func desktopPlans() -> [DesktopLayoutPlan] {
-        let descriptors = displayDescriptors
+        let descriptors = displayDescriptors.filter { !isArranging || arrangedDisplayIDs?.contains($0.id) != false }
         var owners: [String:String] = [:]
         // Saved layouts can share a physical window across displays, including
         // disconnected displays. Place it once, preferring the selected display.

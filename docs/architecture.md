@@ -43,3 +43,9 @@ Schema 4 reads schemas 1–3 and stores workspace tabs, explicit columns, prefer
 Carbon hotkeys and registered Apple Event URLs invoke the same store commands as the UI. Shortcuts are configurable and conflicts are reported. Login registration uses SMAppService. The app has no network service, account, payment layer, recording pipeline, or telemetry.
 
 Fixture mode restricts the real bridge to a disposable bundle and uses separate storage. Automated tests use fake bridges; the native fixture exports its own frames for live comparison.
+
+## Monitor-local auto layout
+
+The auto-layout command resolves the monitor under the pointer using physical display bounds, while placements use the usable frame. Refreshing discovery for this action neither routes focus nor applies layouts. Windows are assigned to one monitor by largest frame intersection, filtered to available current-Desktop content, and split into equal columns/stacks. Count-based columns guarantee side-by-side pairs and four-window quadrants regardless of aspect ratio. The command edits only the current display grid and keeps unavailable members parked outside the visible focus.
+
+A session started by auto layout tracks only enrolled display IDs. Scoped apply calls pass complete plans to preserve other monitors’ controls, but perform native writes, baseline adoption, background stacking, and raises only for the target monitor. Rejected quick layouts restore that monitor’s prior geometry and stored tree, then pause its arrangement without restoring or pausing other monitors. Ordinary Apply Grid retains its all-display behavior.

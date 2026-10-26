@@ -2,7 +2,7 @@
 
 An independent, MIT-licensed macOS window manager inspired by [TrellisWM](https://trelliswm.app/). Windows belong to nested spaces: dock, group them as tabs, and zoom into the work you need.
 
-**Version 0.8.0:** live resizing updates window geometry without raising workspace backgrounds over apps. Floating windows can fill empty slots, split beside a slot or the whole grid, or join a slot as tabs. Workspace switching retains the native layering introduced in 0.6.0. See [acceptance results](acceptance.md).
+**Version 0.8.1:** live resizing updates window geometry without raising workspace backgrounds over apps. Floating windows can fill empty slots, split beside a slot or the whole grid, or join a slot as tabs. Workspace switching retains the native layering introduced in 0.6.0. See [acceptance results](acceptance.md).
 
 ## Build and run
 
@@ -17,6 +17,12 @@ open dist/Canopy.app --args --demo
 The demo does not move real windows or overwrite the real workspace. Click **Use My Windows**, enable Canopy in Privacy & Security → Accessibility, then click the button again. The app starts paused. **Apply Grid** arranges only the windows you added to the selected grid; **Restore Windows** returns frames and pauses; **Resume Layout** reapplies the saved tree. Quitting restores windows Canopy moved or minimized.
 
 Use the app bundle for permission identity and URL registration. Ad-hoc signatures change when code is rebuilt, so macOS may require re-enabling Accessibility. Public distribution uses Developer ID signing and notarization; local builds use `CANOPY_SIGNING_IDENTITY` or the ignored `.canopy-signing-identity` file when configured, otherwise an ad-hoc signature.
+
+## Quick auto layout
+
+Press **Control–Option–A** (or choose **Auto Layout Current Monitor** in the menu bar) with your pointer on the monitor you want to arrange. Canopy uses that monitor’s current Desktop windows: one fills the usable area, two divide it side by side, three use two columns with one stacked pair, and four form a 2×2 grid. Larger sets use balanced columns. Gaps and the workspace tab strip stay clear of app content.
+
+The action updates the current grid on that monitor and supports Undo. Other grid tabs and monitors stay intact. Minimized, fullscreen, excluded, inactive-grid, and other-Desktop windows are skipped. A window crossing monitor boundaries belongs to the monitor containing most of its area. If the panes cannot meet native minimum sizes, the action leaves the windows alone. An app that rejects placement pauses only the target monitor. The global shortcut is configurable in Settings; an existing conflicting custom binding is preserved.
 
 ## Workspace grid tabs
 
@@ -63,6 +69,7 @@ Settings also includes configurable global shortcuts, docking modifiers, tab str
 
 | Action | Shortcut |
 | --- | --- |
+| Auto layout current monitor | Control + Option + A |
 | Previous / next workspace | Option + Shift + Tab / Option + Tab |
 | Workspace 1–9 in tab order | Control + Option + Command + number |
 | Everything | Control + Option + Space |

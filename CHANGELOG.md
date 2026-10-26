@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.8.1 — 2026-10-26
+
+Add configurable global Control–Option–A auto layout on the monitor under the pointer. Two windows use equal side-by-side columns; four use two columns with two rows each, independent of monitor aspect ratio. Other counts use balanced columns. Enroll only available current-Desktop windows on that monitor, skipping minimized, fullscreen, excluded, and inactive-grid windows. Preserve other tabs and off-Desktop memberships. Start monitor-local arrangement sessions without applying saved layouts to other monitors; scope native writes, stacking, recovery adoption, and placement-rejection rollback to the target display. Add the action to the menu bar.
+
 ## 0.8.0 — 2026-10-26
 
 Move native live-resize IPC off the input thread, keep only the latest pending geometry, and read frames at the start and end of a gesture. Fence outstanding writes before restoring or switching workspaces. Stop reapplying the desktop for title-only notifications.

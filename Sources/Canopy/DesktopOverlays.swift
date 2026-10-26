@@ -159,7 +159,7 @@ final class DesktopCoordinator {
         guard !switchingWorkspace else { return }
         guard let store,!isInteracting,!store.interactiveDrag,cameraPanel == nil,store.preferences.animations,
               !NSWorkspace.shared.accessibilityDisplayShouldReduceMotion,!oldPlans.isEmpty else { return }
-        for plan in plans {
+        for plan in plans where store.layoutDisplayScope == nil || plan.display.id == store.layoutDisplayScope {
             let previous = oldPlans.first { $0.display.id == plan.display.id }
             guard let previous else { continue }
             guard DesktopTransitionView.shouldAnimate(old: previous,new: plan,images: store.previews) else { continue }
@@ -171,11 +171,11 @@ final class DesktopCoordinator {
     /// A normal-level surface separates live inactive windows from the active grid.
     /// It consumes empty-area clicks so they cannot reach windows behind it.
     private func stackWorkspaceBackgrounds(_ plans: [DesktopLayoutPlan]) {
-        guard store != nil else { return }
+        guard let store else { return }
         for id in Array(workspaceBackgrounds.keys) where !plans.contains(where: { $0.display.id == id }) {
             workspaceBackgrounds.removeValue(forKey: id)?.close()
         }
-        for plan in plans {
+        for plan in plans where store.layoutDisplayScope == nil || plan.display.id == store.layoutDisplayScope {
             let rect = plan.display.frame
             let panel: OverlayPanel
             if let existing = workspaceBackgrounds[plan.display.id] { panel = existing }
@@ -203,7 +203,10 @@ final class DesktopCoordinator {
     private func raiseFloatingWindows(_ plans: [DesktopLayoutPlan]) {
         guard let store else { return }
         let info = CGWindowListCopyWindowInfo([.optionOnScreenOnly,.excludeDesktopElements],kCGNullWindowID) as? [[String:Any]] ?? []
-        let floating = floatingWindows
+        let floating = floatingWindows.filter { window in
+            guard let frame = store.bridge.frame(of: window.element) else { return false }
+            return plans.contains { $0.display.frame.contains(x: frame.midX,y: frame.midY) }
+        }
         for item in info.reversed() {
             guard let number = (item[kCGWindowNumber as String] as? NSNumber)?.uint32Value,
                   let window = floating.first(where: { $0.windowNumber == number }) else { continue }
@@ -334,16 +337,17 @@ final class DesktopCoordinator {
         }
         #endif
         pendingPlans = plans; oldPlans = plans
-        raiseFloatingWindows(plans)
-        positionBackgroundsBehindActive(plans)
+        let affected = plans.filter { store?.layoutDisplayScope == nil || $0.display.id == store?.layoutDisplayScope }
+        raiseFloatingWindows(affected)
+        positionBackgroundsBehindActive(affected)
         backgroundGeneration += 1
         let generation = backgroundGeneration
-        settleNativeStack(plans)
+        settleNativeStack(affected)
         // AX activation can enqueue its final restack. Correct only our own
         // surface on the next turn; never replay a stale workspace or move apps.
         DispatchQueue.main.async { [weak self] in
             guard let self,self.backgroundGeneration == generation,self.store?.isArranging == true else { return }
-            self.positionBackgroundsBehindActive(plans)
+            self.positionBackgroundsBehindActive(affected)
         }
         if NSWorkspace.shared.frontmostApplication?.processIdentifier == getpid() {
             for window in NSApp.windows where window.isVisible && window.title == "Canopy" { window.orderFront(nil) }

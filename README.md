@@ -57,7 +57,7 @@ Drag a seam to resize both sides. Native resize writes run on a background worke
 
 ## Get started
 
-Canopy is in early development. **macOS 14+**, **Swift 6**, and Xcode Command Line Tools are required. Apple silicon and Intel builds are supported. The current version is **0.8.0**; public Developer ID signing and notarization are not yet provided.
+Canopy is in early development. **macOS 14+**, **Swift 6**, and Xcode Command Line Tools are required. Apple silicon and Intel builds are supported. The current version is **0.8.1**; public Developer ID signing and notarization are not yet provided.
 
 ### Build on your Mac
 
@@ -88,8 +88,11 @@ Keep using one app bundle path for a consistent macOS permission identity. Local
 
 ## Keep your hands on the keyboard
 
+Press **Control–Option–A** to arrange the visible, unminimized windows on the monitor under your pointer. Two windows get equal side-by-side columns; four get a 2×2 grid. Other counts use balanced columns. This updates that monitor’s current grid and leaves other monitors and grid tabs alone. Fullscreen windows, inactive Canopy grid windows, and windows on other macOS Desktops are skipped. Change the shortcut in Settings.
+
 | Action | Default shortcut |
 | --- | --- |
+| Auto layout on current monitor | ⌃ ⌥ A |
 | Next / previous workspace | ⌥ Tab / ⇧ ⌥ Tab |
 | Workspace 1–9 | ⌃ ⌥ ⌘ 1–9 |
 | Previous / next pane | ⌃ ⌥ ← / → |
@@ -116,7 +119,7 @@ swift test
 bash scripts/build-test-app.sh
 ```
 
-The automated suite currently has **140 passing checks**. It uses injected window bridges and temporary storage, so it never moves your real windows. The separate native fixture supports manual Arrange/Restore checks. CI runs the suite and produces a universal app bundle and source archive.
+The automated suite currently has **149 passing checks**. It uses injected window bridges and temporary storage, so it never moves your real windows. The separate native fixture supports manual Arrange/Restore checks. CI runs the suite and produces a universal app bundle and source archive.
 
 Bug reports with the app version, macOS version, and steps to reproduce are welcome. For window movement changes, include native frame readbacks and restoration results. Avoid attaching private window titles or unredacted workspace files.
 

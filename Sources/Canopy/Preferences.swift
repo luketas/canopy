@@ -23,6 +23,7 @@ struct ShortcutBinding: Codable, Equatable, Identifiable {
         case "zoom-out": return "Step out"
         case "zoom-in": return "Step toward pointer"
         case "frame": return "Frame focused window"
+        case "auto-layout": return "Auto Layout Current Monitor"
         case "workspace-previous": return "Previous workspace"
         case "workspace-next": return "Next workspace"
         case "previous": return "Previous pane"
@@ -37,7 +38,7 @@ struct ShortcutBinding: Codable, Equatable, Identifiable {
     static var defaults: [ShortcutBinding] {
         let m = UInt32(controlKey | optionKey)
         var result = [("everything",49,"Space"),("desktop",2,"D"),("zoom-out",126,"↑"),("zoom-in",125,"↓"),
-                      ("frame",36,"Return"),("previous",123,"←"),("next",124,"→"),("back",33,"["),("forward",30,"]")]
+                      ("frame",36,"Return"),("auto-layout",0,"A"),("previous",123,"←"),("next",124,"→"),("back",33,"["),("forward",30,"]")]
             .map { ShortcutBinding(id: $0.0,keyCode: UInt32($0.1),modifiers: m,key: $0.2) }
         for (i,code) in [18,19,20,21,23,22,26,28,25].enumerated() {
             result.append(ShortcutBinding(id: "view.\(i+1)",keyCode: UInt32(code),modifiers: m,key: "\(i+1)"))
@@ -87,4 +88,6 @@ struct DisplayDescriptor: Equatable, Identifiable {
     var name: String
     var frame: CanopyCore.LayoutRect
     var legacyID: String? = nil
+    var bounds: CanopyCore.LayoutRect? = nil
+    var monitorBounds: CanopyCore.LayoutRect { bounds ?? frame }
 }

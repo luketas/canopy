@@ -79,6 +79,10 @@ final class WorkspaceStore: ObservableObject {
     @Published var selectedWindow: String?
     @Published var isDemo = false
     @Published var isArranging = false
+    // nil is the usual all-display session. A quick-layout session starts only
+    // on its target monitor and can add monitors without enrolling the others.
+    var arrangedDisplayIDs: Set<String>?
+    private(set) var layoutDisplayScope: String?
     @Published var hasPermission = false
     @Published var message: String?
     @Published var excludedApps: Set<String> = []
@@ -146,7 +150,9 @@ final class WorkspaceStore: ObservableObject {
             let number = screen.deviceDescription[NSDeviceDescriptionKey("NSScreenNumber")] as? NSNumber
             let uuid = number.flatMap { CGDisplayCreateUUIDFromDisplayID($0.uint32Value)?.takeRetainedValue() }
             let id = uuid.flatMap { CFUUIDCreateString(nil,$0) as String? } ?? number?.stringValue ?? screen.localizedName
-            return DisplayDescriptor(id: id,name: screen.localizedName,frame: WindowBridge.usableFrame(screen),legacyID: number?.stringValue)
+            let top = NSScreen.screens.first?.frame.maxY ?? screen.frame.maxY
+            let bounds = LayoutRect(x: screen.frame.minX,y: top-screen.frame.maxY,width: screen.frame.width,height: screen.frame.height)
+            return DisplayDescriptor(id: id,name: screen.localizedName,frame: WindowBridge.usableFrame(screen),legacyID: number?.stringValue,bounds: bounds)
         } }
         let support = FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask)[0]
         persistenceURL = storageURL ?? support.appendingPathComponent("Canopy/workspace.json")
@@ -280,7 +286,7 @@ final class WorkspaceStore: ObservableObject {
         synchronizeScreens(); refresh()
     }
 
-    func refresh() {
+    func refresh(applyingLayout: Bool = true) {
         hasPermission = bridge.trusted
         guard !isDemo else { return }
         guard hasPermission else {
@@ -337,10 +343,10 @@ final class WorkspaceStore: ObservableObject {
         }
         if let selected = selectedWindow, !live.contains(selected) { selectedWindow = nil }
         let availability = live.subtracting(unavailable)
-        let routed = routeFocusedWindowToWorkspace(requireNewFocus: true)
+        let routed = applyingLayout && routeFocusedWindowToWorkspace(requireNewFocus: true)
         // A title/document change updates the inspector, not desktop stacking.
         // Re-covering apps for metadata-only AX notifications causes flashing.
-        if !routed,isArranging && (displays != oldLayouts || lastAvailability != availability) { applyLayout() }
+        if applyingLayout,!routed,isArranging && (displays != oldLayouts || lastAvailability != availability) { applyLayout() }
         lastAvailability = availability
         destroyedWindows = []
         events?.synchronize(bridge.windows)
@@ -384,7 +390,7 @@ final class WorkspaceStore: ObservableObject {
         return true
     }
 
-    func synchronizeScreens() {
+    func synchronizeScreens(applyingLayout: Bool = true) {
         guard !isDemo else { return }
         for screen in screenProvider() {
             let key = screen.id
@@ -397,7 +403,7 @@ final class WorkspaceStore: ObservableObject {
         if !liveIDs.contains(selectedDisplay) { selectedDisplay = screenProvider().first?.id ?? "" }
         // Keep disconnected arrangements as dormant display workspaces. The OS moves
         // their windows to a live monitor; restoration always clamps to visible bounds.
-        if isArranging { applyLayout() }
+        if applyingLayout,isArranging { applyLayout() }
     }
 
     func screenID(_ screen: NSScreen) -> String {
@@ -408,6 +414,66 @@ final class WorkspaceStore: ObservableObject {
         if isDemo { return displays }
         let ids = Set(screenProvider().map(\.id))
         return displays.filter { ids.contains($0.id) }
+    }
+
+    func autoLayoutCurrentMonitor() {
+        guard !isDemo,bridge.trusted else { useRealWindows(); return }
+        guard !interactiveDrag,!workspaceSwitchPending,!spaceTransitionPending else { return }
+        // Discovery must not route focus to another grid or reapply other
+        // monitors before we have resolved this command's local window set.
+        synchronizeScreens(applyingLayout: false); refresh(applyingLayout: false)
+        guard let index = displays.firstIndex(where: { $0.id == selectedDisplay }),
+              let descriptor = displayDescriptors.first(where: { $0.id == selectedDisplay }) else { return }
+        let descriptors = displayDescriptors
+        let windows = listedRecords.filter { record in
+            guard let window = bridge.windows[record.id],window.onScreen,!window.minimized,!window.fullScreen,
+                  !occludedWindows.contains(record.id),let frame = bridge.frame(of: window.element),frame.isValid else { return false }
+            // Largest intersection assigns a straddling window to one monitor;
+            // no fallback may pull a window from an unrelated display.
+            return descriptors.max { a,b in
+                Self.overlapArea(frame,a.monitorBounds) < Self.overlapArea(frame,b.monitorBounds)
+            }.map { $0.id == descriptor.id && Self.overlapArea(frame,$0.monitorBounds) > 0 } ?? false
+        }
+        guard !windows.isEmpty else { message = "No available windows on this monitor's current Desktop."; return }
+        // Fixed counts make two windows side by side and four exactly 2×2,
+        // including on portrait and ultrawide monitors.
+        let columns = min(8,Int(ceil(sqrt(Double(windows.count)))))
+        guard let root = Self.columnPreset(windows.map { LayoutNode(window: $0.id) },count: columns) else { return }
+        let placements = root.placements(in: desktopViewport(descriptor),gap: gap)
+        guard placements.allSatisfy({ placement in
+            let minimum = bridge.minimumSize(placement.window) ?? .zero
+            return placement.rect.width >= max(preferences.minimumWidth,minimum.width)
+                && placement.rect.height >= max(preferences.minimumHeight,minimum.height)
+        }) else { message = "These windows cannot fit on this monitor at their minimum sizes. Remove a window and try Auto Layout again."; return }
+        let previous = displays
+        checkpoint()
+        // Retain off-Desktop and otherwise unavailable members without taking
+        // geometry from the currently visible windows. Other grid tabs stay intact.
+        var parked = displays[index].root
+        let available = Set(listedRecords.map(\.id))
+        for key in parked?.allWindows ?? [] where available.contains(key) || Self.isDesktop(key) {
+            parked = parked?.removing(window: key)
+        }
+        displays[index].root = parked.map { LayoutNode(first: root,second: $0,axis: .horizontal) } ?? root
+        displays[index].focus = root.id; displays[index].cameraFrame = nil
+        normalizeFocus(index)
+        selectedWindow = windows.first?.id; message = storageWarning
+        // Adopt only this monitor's interrupted-session baselines. Recovering
+        // the whole journal here would move windows on other monitors first.
+        let enrolled = Set(windows.map(\.id))
+        for recovery in pendingRecovery where enrolled.contains(recovery.id) {
+            if let i = records.firstIndex(where: { $0.id == recovery.id }) { records[i].originalFrame = recovery.originalFrame }
+            movedWindows.insert(recovery.id)
+        }
+        pendingRecovery.removeAll { enrolled.contains($0.id) }
+        recoveryMinimized.subtract(enrolled)
+        if !isArranging { arrangedDisplayIDs = [descriptor.id] }
+        else if arrangedDisplayIDs != nil { arrangedDisplayIDs?.insert(descriptor.id) }
+        isArranging = true
+        persist(); applyLayout(on: descriptor.id,rollback: previous)
+    }
+    private static func overlapArea(_ a: LayoutRect,_ b: LayoutRect) -> Double {
+        max(0,min(a.maxX,b.maxX)-max(a.x,b.x))*max(0,min(a.maxY,b.maxY)-max(a.y,b.y))
     }
 
     func arrange(enrollAvailable: Bool = true) {
@@ -423,6 +489,7 @@ final class WorkspaceStore: ObservableObject {
             guard !pendingRecovery.contains(where: { bridge.windows[$0.id] != nil && !unavailable.contains($0.id) }) else { return }
             message = storageWarning
         }
+        arrangedDisplayIDs = nil
         checkpoint()
         var balancedDisplays = Set(displays.filter { workspace in
             workspace.root?.allWindows.filter { !unavailable.contains($0) }.allSatisfy(Self.isDesktop) ?? true
@@ -732,19 +799,40 @@ final class WorkspaceStore: ObservableObject {
     func includeApp(_ bundle: String) { excludedApps.remove(bundle); refresh(); persist() }
     func updateGap(_ value: Double) { gap = min(32, max(0, value)); persist(); applyLayout() }
 
-    func applyLayout(activating keyToActivate: String? = nil) {
+    func applyLayout(activating keyToActivate: String? = nil,on displayID: String? = nil,rollback: [DisplayWorkspace]? = nil) {
         guard !workspaceSwitchPending else { return }
         guard isArranging, !isDemo, bridge.trusted, !spaceTransitionPending else { return }
-        if !isResizing,let focused = bridge.focusedWindow(),bridge.windows[focused]?.fullScreen == true { onPause?(); return }
+        if !isResizing,let focused = bridge.focusedWindow(),let window = bridge.windows[focused],window.fullScreen {
+            let monitor = bridge.frame(of: window.element).flatMap { frame in
+                displayDescriptors.max { Self.overlapArea(frame,$0.monitorBounds) < Self.overlapArea(frame,$1.monitorBounds) }?.id
+            }
+            if displayID == nil || monitor == displayID { onPause?(); return }
+        }
         layoutVerification?.cancel()
         let plans = desktopPlans()
-        let native = plans.flatMap(\.nativePlacements)
+        layoutDisplayScope = displayID
+        defer { layoutDisplayScope = nil }
+        let affectedPlans = plans.filter { displayID == nil || $0.display.id == displayID }
+        let native = affectedPlans.flatMap(\.nativePlacements)
+        let previouslyMoved = movedWindows
+        let previousOcclusion = occludedWindows
+        let previousFrames = displayID == nil ? [:] : Dictionary(native.compactMap { placement -> (String,LayoutRect)? in
+            guard let element = bridge.windows[placement.window]?.element,let frame = bridge.frame(of: element) else { return nil }
+            return (placement.window,frame)
+        },uniquingKeysWith: { first,_ in first })
         let visible = Set(native.map(\.window))
         applyingGeometryOnly = isResizing && visible == lastNativeVisible
         defer { applyingGeometryOnly = false }
         if isResizing,!applyingGeometryOnly { bridge.endLiveResize() }
-        let managed = Set(displays.flatMap { $0.allGridWindows }).subtracting(unavailable).filter { bridge.windows[$0] != nil }
-        for key in managed where !applyingGeometryOnly {
+        let affectedDisplays = Set(affectedPlans.map { $0.display.id })
+        let managed = Set(displays.filter { affectedDisplays.contains($0.id) }.flatMap { $0.allGridWindows }).subtracting(unavailable).filter { key in
+            guard let window = bridge.windows[key] else { return false }
+            guard let displayID else { return true }
+            if visible.contains(key) { return true }
+            guard let frame = bridge.frame(of: window.element) else { return false }
+            return displayDescriptors.max { Self.overlapArea(frame,$0.monitorBounds) < Self.overlapArea(frame,$1.monitorBounds) }?.id == displayID
+        }
+        for key in managed where !applyingGeometryOnly && (displayID == nil || visible.contains(key)) {
                 if !movedWindows.contains(key) {
                     // Capture immediately before the first move this session, never from an old saved frame.
                     if let i = records.firstIndex(where: { $0.id == key }),
@@ -758,7 +846,7 @@ final class WorkspaceStore: ObservableObject {
         onLayoutWillApply?(plans)
         // Upgrade older sessions once. Workspace changes never minimize windows.
         if !applyingGeometryOnly {
-            for key in managerMinimized where bridge.setMinimized(key,false) { managerMinimized.remove(key) }
+            for key in managerMinimized where (displayID == nil || managed.contains(key)) && bridge.setMinimized(key,false) { managerMinimized.remove(key) }
         }
         var moved = 0
         if applyingGeometryOnly {
@@ -773,7 +861,8 @@ final class WorkspaceStore: ObservableObject {
                 }
             }
         }
-        occludedWindows = managed.subtracting(visible)
+        if displayID == nil { occludedWindows = managed.subtracting(visible) }
+        else { occludedWindows.subtract(managed); occludedWindows.formUnion(managed.subtracting(visible)) }
         // Activate before raising peers: raising a background app while the
         // outgoing app is still active can leave it below that outgoing app.
         if !applyingGeometryOnly {
@@ -782,7 +871,7 @@ final class WorkspaceStore: ObservableObject {
             if let keyToActivate,visible.contains(keyToActivate) { bridge.raise(keyToActivate,activate: false) }
             layoutFocusedWindow = bridge.focusedWindow()
         }
-        lastNativeVisible = visible
+        lastNativeVisible = Set(plans.flatMap(\.nativePlacements).map(\.window))
         if isResizing,!applyingGeometryOnly { bridge.beginLiveResize(visible) }
         #if DEBUG
         lastNativeMoveCount = moved
@@ -802,6 +891,30 @@ final class WorkspaceStore: ObservableObject {
             let failures = native.filter { !self.bridge.verifyMove($0.window,to: $0.rect) }.count
             guard !Task.isCancelled else { return }
             if failures > 0 {
+                if let displayID {
+                    // A rejected quick layout may pause only its own monitor.
+                    // Never use the global restore path for a monitor-local edit.
+                    if let old = (rollback ?? self.verifiedLayouts)?.first(where: { $0.id == displayID }),
+                       let index = self.displays.firstIndex(where: { $0.id == displayID }) { self.displays[index] = old }
+                    let newlyMoved = visible.subtracting(previouslyMoved)
+                    let failedRestores = self.bridge.restore(self.records.filter { newlyMoved.contains($0.id) })
+                    self.movedWindows.subtract(newlyMoved.subtracting(failedRestores))
+                    for (key,frame) in previousFrames where previouslyMoved.contains(key) { _ = self.bridge.move(key,to: frame) }
+                    for key in visible { self.placementTargets.removeValue(forKey: key) }
+                    self.occludedWindows.subtract(managed); self.occludedWindows.formUnion(previousOcclusion.intersection(managed))
+                    self.arrangedDisplayIDs = Set(plans.map { $0.display.id }).subtracting([displayID])
+                    self.isArranging = self.arrangedDisplayIDs?.isEmpty == false
+                    if let rollback,self.undoStack.last == rollback { self.undoStack.removeLast() }
+                    self.verifiedLayouts = nil
+                    self.message = "Auto Layout paused on this monitor because an app resisted resizing. Other monitors were left alone."
+                    if self.isArranging {
+                        self.layoutDisplayScope = displayID
+                        let remaining = self.desktopPlans()
+                        self.onLayoutWillApply?(remaining); self.onLayoutDidApply?(remaining)
+                        self.layoutDisplayScope = nil
+                    } else { self.onPause?() }
+                    self.persist(); return
+                }
                 if self.fitExplicitColumnWidths() { self.persist(); self.applyLayout(); return }
                 if let previous = self.verifiedLayouts {
                     self.verifiedLayouts = nil
