@@ -122,6 +122,7 @@ final class WorkspaceStore: ObservableObject {
     #endif
     private var placementTargets: [String:LayoutRect] = [:]
     private var layoutFocusedWindow: String?
+    private var activationRoutingWork: Task<Void,Never>?
     private var gridActivationHistory: [String] = []
     var recoveryMinimized = Set<String>()
     private let screenProvider: () -> [DisplayDescriptor]
@@ -168,7 +169,7 @@ final class WorkspaceStore: ObservableObject {
         if self.bridge is WindowBridge {
             let observer = WindowEvents()
             observer.onChange = { [weak self] in self?.refresh() }
-            observer.onFocusChange = { [weak self] in self?.routeFocusedWindowToWorkspace() }
+            observer.onFocusChange = { [weak self] pid,element in self?.handleNativeActivation(processID: pid,element: element) }
             observer.onSpaceChanged = { [weak self] in self?.handleSpaceChange() }
             observer.onDestroyed = { [weak self] element in
                 guard let self else { return }
@@ -353,15 +354,56 @@ final class WorkspaceStore: ObservableObject {
         if changed { persist() }
     }
 
+    func handleNativeActivation(processID: pid_t?,element: AXUIElement? = nil) {
+        guard isArranging,!isDemo,!interactiveDrag,!workspaceSwitchPending,!spaceTransitionPending else { return }
+        guard let pid = processID ?? bridge.frontmostProcessID,pid > 0,pid != getpid() else {
+            cancelPendingActivationRouting(); return
+        }
+        // Background apps can change their main window without user activation.
+        // Workspace activation may precede frontmostApplication, so only AX
+        // notifications (which carry an element) require a current PID match.
+        if element != nil,bridge.frontmostProcessID != pid { return }
+        cancelPendingActivationRouting()
+        _ = reconcileNativeActivation(processID: pid,element: element,rediscover: false)
+        activationRoutingWork = Task { @MainActor [weak self] in
+            let delays: [UInt64] = [60_000_000,120_000_000,240_000_000,400_000_000,600_000_000]
+            for (index,delay) in delays.enumerated() {
+                do { try await Task.sleep(nanoseconds: delay) } catch { return }
+                guard let self,!Task.isCancelled,self.isArranging,!self.isDemo else { return }
+                _ = self.reconcileNativeActivation(processID: pid,element: nil,rediscover: index == 1 || index == delays.count-1)
+            }
+        }
+    }
+    private func reconcileNativeActivation(processID: pid_t,element: AXUIElement?,rediscover: Bool) -> Bool {
+        guard bridge.frontmostProcessID == processID,!interactiveDrag,!workspaceSwitchPending,!spaceTransitionPending else { return false }
+        var key = bridge.focusedWindow(in: processID) ?? element.flatMap { bridge.windowKey(for: $0,processID: processID) }
+        if rediscover,key.flatMap({ bridge.windows[$0] }).map({ !$0.onScreen || $0.minimized }) ?? true {
+            refresh(applyingLayout: false)
+            key = bridge.focusedWindow(in: processID)
+        }
+        if key == nil,rediscover {
+            // Some apps never publish focused/main-window attributes. Only an
+            // unambiguous, freshly discovered visible window is a safe fallback.
+            let visible = bridge.windows.values.filter { $0.pid == processID && $0.onScreen && !$0.minimized && !$0.fullScreen }
+            if visible.count == 1 { key = visible[0].id }
+        }
+        guard let key,let window = bridge.windows[key],window.onScreen,!window.minimized,!window.fullScreen else { return false }
+        _ = routeFocusedWindowToWorkspace(window: key)
+        return true
+    }
+    private func cancelPendingActivationRouting() {
+        activationRoutingWork?.cancel(); activationRoutingWork = nil
+    }
+
     /// Dock clicks, app activation, and native window selection navigate to
     /// the owning Canopy grid. They never enroll a window into another grid.
-    @discardableResult func routeFocusedWindowToWorkspace(requireNewFocus: Bool = false) -> Bool {
+    @discardableResult func routeFocusedWindowToWorkspace(window requestedKey: String? = nil,requireNewFocus: Bool = false) -> Bool {
         guard isArranging,!isDemo,!interactiveDrag,!workspaceSwitchPending,!spaceTransitionPending,
-              let key = bridge.focusedWindow(),(!requireNewFocus || key != layoutFocusedWindow),let window = bridge.windows[key],
+              let key = requestedKey ?? bridge.focusedWindow(),(!requireNewFocus || key != layoutFocusedWindow),let window = bridge.windows[key],
               window.onScreen,!window.minimized,!window.fullScreen else { return false }
         // Prefer an already active arrangement for shared windows.
         let connected = Set(displayDescriptors.map(\.id))
-        let eligible = displays.indices.filter { connected.contains(displays[$0].id) }
+        let eligible = displays.indices.filter { connected.contains(displays[$0].id) && arrangedDisplayIDs?.contains(displays[$0].id) != false }
         let active = eligible.first { displays[$0].root?.leaf(containing: key) != nil }
         var destination: (display: Int,grid: String)?
         if let active { destination = (active,displays[active].activeGridID) }
@@ -377,11 +419,14 @@ final class WorkspaceStore: ObservableObject {
               let g = displays[destination.display].grids.firstIndex(where: { $0.id == destination.grid }),
               let leaf = displays[destination.display].grids[g].root?.leaf(containing: key) else { return false }
         let switching = displays[destination.display].activeGridID != destination.grid
-        if !switching,lastNativeVisible.contains(key) { selectedWindow = key; return false }
+        if !switching,lastNativeVisible.contains(key) {
+            if selectedWindow != key { selectedWindow = key }
+            return false
+        }
         displays[destination.display].grids[g].root?.select(window: key)
         let grid = displays[destination.display].grids[g]
         if grid.focus.flatMap({ grid.root?.node($0) })?.allWindows.contains(key) != true || grid.cameraFrame != nil {
-            displays[destination.display].grids[g].focus = leaf.id
+            displays[destination.display].grids[g].focus = grid.root?.id ?? leaf.id
             displays[destination.display].grids[g].cameraFrame = nil
         }
         selectedDisplay = displays[destination.display].id
@@ -605,6 +650,7 @@ final class WorkspaceStore: ObservableObject {
     }
 
     func floatAll() {
+        cancelPendingActivationRouting()
         cancelPendingWorkspaceSwitch()
         resizeWork?.invalidate(); resizeWork = nil; isResizing = false; bridge.endLiveResize()
         verifiedLayouts = nil
@@ -631,6 +677,7 @@ final class WorkspaceStore: ObservableObject {
         isArranging = true; applyLayout()
     }
     func pauseForSpaceChange() {
+        cancelPendingActivationRouting()
         cancelPendingWorkspaceSwitch()
         guard isArranging,!isDemo else { return }
         resizeWork?.invalidate(); resizeWork = nil; isResizing = false; bridge.endLiveResize()
@@ -660,6 +707,7 @@ final class WorkspaceStore: ObservableObject {
 
     func focus(_ node: String) {
         guard let i = displays.firstIndex(where: { $0.id == selectedDisplay }), displays[i].root?.node(node) != nil else { return }
+        cancelPendingActivationRouting()
         displays[i].focus = node; displays[i].cameraFrame = nil; displays[i].history.visit(node)
         persist(); applyLayout()
     }
@@ -681,6 +729,7 @@ final class WorkspaceStore: ObservableObject {
     }
     func navigateHistory(back: Bool) {
         guard let i = displays.firstIndex(where: { $0.id == selectedDisplay }) else { return }
+        cancelPendingActivationRouting()
         while let id = back ? displays[i].history.back() : displays[i].history.forward() {
             if let frame = displays[i].historyFrames?[id] { displays[i].cameraFrame = frame; displays[i].focus = displays[i].root?.id; break }
             if displays[i].root?.node(id) != nil { displays[i].focus = id; displays[i].cameraFrame = nil; break }
@@ -705,6 +754,7 @@ final class WorkspaceStore: ObservableObject {
     }
     func selectTab(_ key: String,activate: Bool = false) {
         guard let i = displays.firstIndex(where: { $0.id == selectedDisplay }) else { return }
+        cancelPendingActivationRouting()
         displays[i].root?.select(window: key); selectedWindow = key
         persist(); applyLayout(activating: activate ? key : nil)
     }
@@ -770,12 +820,14 @@ final class WorkspaceStore: ObservableObject {
     }
     func undo() {
         guard let state = undoStack.popLast() else { return }
+        cancelPendingActivationRouting()
         let oldManaged = Set(displays.flatMap { $0.allGridWindows })
         redoStack.append(displays); displays = state
         pruneMissingWindows(); restoreNewlyFloating(oldManaged); commit()
     }
     func redo() {
         guard let state = redoStack.popLast() else { return }
+        cancelPendingActivationRouting()
         let oldManaged = Set(displays.flatMap { $0.allGridWindows })
         undoStack.append(displays); displays = state
         pruneMissingWindows(); restoreNewlyFloating(oldManaged); commit()
@@ -984,12 +1036,14 @@ final class WorkspaceStore: ObservableObject {
         }
     }
     func shutdown() {
+        cancelPendingActivationRouting()
         layoutVerification?.cancel()
         timer?.invalidate()
         if !isDemo { floatAll(); persist() }
         events?.stop(); onPause?()
     }
     func checkpoint() {
+        cancelPendingActivationRouting()
         if message?.hasPrefix("An app could not fit that edit") == true { message = nil }
         undoStack.append(displays); if undoStack.count > 40 { undoStack.removeFirst() }; redoStack = []
     }
@@ -1102,6 +1156,7 @@ final class WorkspaceStore: ObservableObject {
     func selectWorkspaceGrid(_ id: String,activate: Bool = false) {
         guard let i = displays.firstIndex(where: { $0.id == selectedDisplay }),displays[i].activeGridID != id,
               displays[i].grids.contains(where: { $0.id == id }) else { return }
+        cancelPendingActivationRouting()
         resizeWork?.invalidate(); resizeWork = nil; isResizing = false; bridge.endLiveResize()
         cancelEditorDrag(); displays[i].activeGridID = id
         gridActivationHistory.removeAll { $0 == id }; gridActivationHistory.insert(id,at: 0)

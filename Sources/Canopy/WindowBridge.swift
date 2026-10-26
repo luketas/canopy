@@ -59,6 +59,7 @@ protocol WindowManaging: AnyObject {
     var preferredInitialPaneSize: CGSize { get }
     var destroyedWindowIDs: Set<String> { get }
     var windowAliases: [String:String] { get }
+    var frontmostProcessID: pid_t? { get }
     func requestPermission()
     @discardableResult func forgetWindow(_ key: String) -> Bool
     func discover(saved: [WindowRecord], excluded: Set<String>) -> [DiscoveredWindow]
@@ -68,6 +69,8 @@ protocol WindowManaging: AnyObject {
     func restore(_ records: [WindowRecord]) -> Set<String>
     func setMinimized(_ key: String, _ value: Bool) -> Bool
     func focusedWindow() -> String?
+    func focusedWindow(in processID: pid_t) -> String?
+    func windowKey(for element: AXUIElement,processID: pid_t) -> String?
     func minimumSize(_ key: String) -> CGSize?
     func beginLiveResize(_ keys: Set<String>)
     func endLiveResize()
@@ -88,6 +91,13 @@ extension WindowManaging {
     var runningBundleIDs: Set<String> { Set(NSWorkspace.shared.runningApplications.compactMap(\.bundleIdentifier)) }
     func setMinimized(_ key: String, _ value: Bool) -> Bool { false }
     func focusedWindow() -> String? { nil }
+    var frontmostProcessID: pid_t? { focusedWindow().flatMap { windows[$0]?.pid } }
+    func focusedWindow(in processID: pid_t) -> String? {
+        focusedWindow().flatMap { windows[$0]?.pid == processID ? $0 : nil }
+    }
+    func windowKey(for element: AXUIElement,processID: pid_t) -> String? {
+        windows.values.first { $0.pid == processID && CFEqual($0.element,element) }?.id
+    }
     func minimumSize(_ key: String) -> CGSize? { nil }
     func verifyMove(_ key: String,to rect: LayoutRect) -> Bool {
         guard let element = windows[key]?.element else { return true }
@@ -459,11 +469,46 @@ final class WindowBridge: WindowManaging {
         return true
     }
 
+    var frontmostProcessID: pid_t? { NSWorkspace.shared.frontmostApplication?.processIdentifier }
     func focusedWindow() -> String? {
-        guard let app = NSWorkspace.shared.frontmostApplication else { return nil }
-        let root = AXUIElementCreateApplication(app.processIdentifier)
-        guard let focused = attribute(root,kAXFocusedWindowAttribute) else { return nil }
-        return windows.values.first { CFEqual($0.element,focused) }?.id
+        frontmostProcessID.flatMap { focusedWindow(in: $0) }
+    }
+    func focusedWindow(in processID: pid_t) -> String? {
+        let root = AXUIElementCreateApplication(processID)
+        AXUIElementSetMessagingTimeout(root,0.15)
+        for name in [kAXFocusedWindowAttribute,kAXMainWindowAttribute] {
+            guard let value = attribute(root,name),CFGetTypeID(value) == AXUIElementGetTypeID() else { continue }
+            if let key = windowKey(for: value as! AXUIElement,processID: processID) { return key }
+            // A known focused window must not be replaced by a stale main
+            // window from a different grid while discovery catches up.
+            if name == kAXFocusedWindowAttribute { return nil }
+        }
+        return nil
+    }
+    func windowKey(for element: AXUIElement,processID: pid_t) -> String? {
+        let candidates = windows.values.filter { $0.pid == processID }
+        if let exact = candidates.first(where: { CFEqual($0.element,element) }) { return exact.id }
+        let number = NativeWindowResolver.number(element)
+        if let number { return Self.resolveFocusIdentity(processID: processID,number: number,frame: nil,windows: candidates,frames: [:]) }
+        guard let actual = frame(of: element) else { return nil }
+        let frames = Dictionary(candidates.compactMap { candidate -> (String,LayoutRect)? in
+            frame(of: candidate.element).map { (candidate.id,$0) }
+        },uniquingKeysWith: { first,_ in first })
+        return Self.resolveFocusIdentity(processID: processID,number: nil,frame: actual,windows: candidates,frames: frames)
+    }
+    static func resolveFocusIdentity(processID: pid_t,number: CGWindowID?,frame: LayoutRect?,windows: [DiscoveredWindow],frames: [String:LayoutRect]) -> String? {
+        let candidates = windows.filter { $0.pid == processID }
+        if let number {
+            let matches = candidates.filter { ($0.windowNumber ?? $0.record.nativeWindowNumber) == number }
+            return matches.count == 1 ? matches[0].id : nil
+        }
+        guard let frame else { return nil }
+        let matches = candidates.filter { candidate in
+            guard let other = frames[candidate.id] else { return false }
+            return abs(frame.x-other.x) < 2 && abs(frame.y-other.y) < 2
+                && abs(frame.width-other.width) < 2 && abs(frame.height-other.height) < 2
+        }
+        return matches.count == 1 ? matches[0].id : nil
     }
 
     @discardableResult

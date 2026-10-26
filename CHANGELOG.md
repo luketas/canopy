@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.8.2 — 2026-10-26
+
+Fix missed app-to-grid activation when macOS reports application activation before the frontmost process, focused window, or unminimized visibility has settled. Carry process IDs and AX event elements through notification handling; reconcile immediately and over a bounded retry window, refreshing discovery only when identity or visibility is unresolved. Include Dock clicks on an already-active app even if macOS sends no new activation notification. Cancel stale requests on newer activation, manual grid/layout navigation, pause, and shutdown; ignore background-app main-window changes.
+
+Resolve focus using the native window ID and process, with exact unique-frame matching as fallback, instead of requiring the same AX reference. Use the app’s main window when its focused attribute is absent. Keep shared and floating-window behavior, respect enrolled display scope, and reveal the whole owning grid when the saved zoom excludes the activated window.
+
 ## 0.8.1 — 2026-10-26
 
 Add configurable global Control–Option–A auto layout on the monitor under the pointer. Two windows use equal side-by-side columns; four use two columns with two rows each, independent of monitor aspect ratio. Other counts use balanced columns. Enroll only available current-Desktop windows on that monitor, skipping minimized, fullscreen, excluded, and inactive-grid windows. Preserve other tabs and off-Desktop memberships. Start monitor-local arrangement sessions without applying saved layouts to other monitors; scope native writes, stacking, recovery adoption, and placement-rejection rollback to the target display. Add the action to the menu bar.

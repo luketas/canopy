@@ -1,6 +1,6 @@
 # Native acceptance checks
 
-Current automated evidence: **149 tests pass (33 XCTest and 116 Swift Testing)** on 2026-10-26. Native evidence below separates controlled fixtures, development runs against actual third-party apps, and final-package smoke checks. Physical multiple displays remain unverified.
+Current automated evidence: **159 tests pass (33 XCTest and 126 Swift Testing)** on 2026-10-26. Native evidence below separates controlled fixtures, development runs against actual third-party apps, and final-package smoke checks. Physical multiple displays remain unverified.
 
 Environment: macOS 26.2 (25C56), Apple silicon, Apple Swift 6.2. The native test session uses `scripts/build-test-app.sh` and `dist/CanopyFixture.app`. This embeds restricted discovery in the test bundle and isolates persistence under `Canopy/TestSessions`. Export Window Frames records the fixture's own actual geometry. The baseline includes three 640 × 432 windows, with two duplicate titles, at (100, 828), (210, 758), and (320, 688). Compare after Arrange and Restore; do not substitute source assertions for native frame evidence.
 
@@ -9,6 +9,12 @@ Additional native observations: shortcut recording enters its waiting state and 
 The renewed reviewer scored all three fixes **resolved**, disposition **ship** for that fix list, after inspecting exact 1160 × 760 and expanded 3440 × 1410. The expanded view also confirms Desktop-specific content. The window was returned to 1160 × 760. No broader native-behavior approval is implied.
 
 On 2026-10-18, System Settings initially showed Canopy's Accessibility switch **on**, but `AXIsProcessTrusted()` was false even after relaunch. The user authorized refreshing only Canopy's grant. Toggling alone did not resolve it; removing its stale entry and selecting the exact current bundle did. The user completed the later Touch ID prompt directly. No TCC reset, other-app permission change, or personal-window arrangement was used.
+
+## Version 0.8.2 native activation reconciliation — 2026-10-26
+
+The automated suite passes 159 tests (33 XCTest + 126 Swift Testing). New regressions exercise delayed frontmost process and focus, an already-active application that changes its focused window after the first click, absent focused-window attributes, ambiguous app windows, delayed unminimize visibility, manual-grid cancellation, newer activation superseding an older request, background AX events, full-grid reveal outside a saved zoom, and stable process/window-number matching with ambiguity-safe frame fallback. Tests inject the native event timing and bridge state; they do not synthesize a physical Dock click.
+
+A live check was attempted, but Computer Use reported the local Mac locked. The corrected build’s physical Dock/activation behavior still needs confirmation on an unlocked Mac.
 
 ## Version 0.8.1 monitor-local auto layout — 2026-10-26
 

@@ -22,6 +22,7 @@ final class FakeWindows: WindowManaging {
     var runningBundleIDs: Set<String> = ["fixture.a","fixture.b","fixture.c"]
     var minimizeRequests: [(String,Bool)] = []
     var focused: String?
+    var frontmostProcessID: pid_t?
     var discoveredTitles: [String:String] = [:]
     var verificationCount = 0
     var operations: [String] = []
