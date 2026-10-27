@@ -51,6 +51,7 @@ private struct WorkspaceRoot: View {
 private struct MenuContent: View {
     @ObservedObject var store: WorkspaceStore
     @Environment(\.openWindow) private var openWindow
+    @Environment(\.openSettings) private var openSettings
     var body: some View {
         Button("Open Workspace") { openWindow(id: "workspace"); NSApp.activate(ignoringOtherApps: true) }
         Divider()
@@ -84,6 +85,9 @@ private struct MenuContent: View {
             Button("Restore All Managed Windows") { store.floatAll() }.disabled(!store.hasWindowsToRestore)
         }
         Divider()
+        Button("Keyboard Shortcuts…") {
+            store.settingsSection = "shortcuts"; openSettings(); NSApp.activate(ignoringOtherApps: true)
+        }
         SettingsLink { Text("Settings…") }
         Button("Quit Canopy") { NSApp.terminate(nil) }
     }

@@ -33,11 +33,12 @@ final class HotKeys {
         // delivered key events and keeps shortcuts usable in accessory windows.
         // Never consume a recorder's event, or a chord another app registered.
         localMonitor = NSEvent.addLocalMonitorForEvents(matching: .keyDown) { [weak self] event in
-            MainActor.assumeIsolated {
-                if let recorder = NSApp.keyWindow?.firstResponder as? RecorderButton,recorder.recording { return event }
-                guard let self,let id = self.match(event) else { return event }
-                self.fire(id,time: event.timestamp); return nil
+            let handled = MainActor.assumeIsolated {
+                if let recorder = NSApp.keyWindow?.firstResponder as? RecorderButton,recorder.recording { return false }
+                guard let self,let id = self.match(event) else { return false }
+                self.fire(id,time: event.timestamp); return true
             }
+            return handled ? nil : event
         }
         globalMonitor = NSEvent.addGlobalMonitorForEvents(matching: .keyDown) { [weak self] event in
             MainActor.assumeIsolated {
@@ -59,7 +60,10 @@ final class HotKeys {
     }
     func configure(store: WorkspaceStore) {
         for reference in references { UnregisterEventHotKey(reference) }
-        references = []; actions = [:]; registered = []; failures = []; lastEvents = [:]; nextID = 1
+        // Keep IDs unique across configurations so a queued Carbon callback
+        // cannot invoke a different action after editing a shortcut.
+        references = []; actions = [:]; registered = []; failures = []; lastEvents = [:]
+        guard store.recordingShortcutID == nil else { return }
         for binding in store.preferences.shortcuts where binding.enabled {
             register(binding) { [weak store] in store?.performCommand(binding.id) }
         }

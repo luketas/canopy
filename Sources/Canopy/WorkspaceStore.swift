@@ -90,6 +90,9 @@ final class WorkspaceStore: ObservableObject {
     @Published var excludedApps: Set<String> = WorkspaceStore.defaultFloatingApps
     @Published var gap: Double = 8
     @Published var shortcutStatus: String?
+    @Published var shortcutConfigurationError: String?
+    @Published var recordingShortcutID: String?
+    @Published var settingsSection = "general"
     @Published var preferences = UserPreferences()
     @Published var pendingRecovery: [WindowRecord] = []
     @Published var previews: [String:NSImage] = [:]
@@ -1288,10 +1291,23 @@ final class WorkspaceStore: ObservableObject {
     func storageWasReplaced() { canPersist = true; storageWarning = nil }
     func persist() {
         guard !isDemo, canPersist else { return }
+        writeSnapshot(snapshot)
+    }
+    func persistShortcutPreferences() {
+        guard isDemo else { persist(); return }
+        guard var saved = realSnapshot else { return }
+        var savedPreferences = saved.preferences ?? UserPreferences()
+        savedPreferences.shortcuts = preferences.shortcuts
+        saved.preferences = savedPreferences
+        realSnapshot = saved
+        guard canPersist else { return }
+        writeSnapshot(saved)
+    }
+    private func writeSnapshot(_ value: WorkspaceSnapshot) {
         do {
             try FileManager.default.createDirectory(at: persistenceURL.deletingLastPathComponent(), withIntermediateDirectories: true)
             let encoder = JSONEncoder(); encoder.outputFormatting = [.prettyPrinted, .sortedKeys]
-            try encoder.encode(snapshot).write(to: persistenceURL, options: .atomic)
+            try encoder.encode(value).write(to: persistenceURL, options: .atomic)
         } catch { message = "Could not save this workspace: \(error.localizedDescription)" }
     }
 }

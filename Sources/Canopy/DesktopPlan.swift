@@ -234,16 +234,6 @@ extension WorkspaceStore {
         preferences = copy; persist(); onPreferencesChanged?(); applyLayout()
     }
 
-    func changeShortcut(_ binding: ShortcutBinding) -> Bool {
-        if binding.enabled && preferences.shortcuts.contains(where: { $0.id != binding.id && $0.enabled && $0.keyCode == binding.keyCode && $0.modifiers == binding.modifiers }) {
-            message = "That shortcut is already assigned to another Canopy action."; return false
-        }
-        updatePreferences { preferences in
-            if let i = preferences.shortcuts.firstIndex(where: { $0.id == binding.id }) { preferences.shortcuts[i] = binding }
-        }
-        return true
-    }
-
     func recoverWindows() {
         guard !isDemo,hasPermission else { return }
         // A browser's title and document can both change while Canopy is

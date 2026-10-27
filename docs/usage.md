@@ -89,7 +89,9 @@ Settings also includes configurable global shortcuts, docking modifiers, tab str
 
 Workspace-cycle defaults are Option–Tab forward and Option–Shift–Tab backward. Cycling skips empty grids and grids with no available windows on this Desktop. Existing default cycle bindings migrate; customized and disabled bindings remain unchanged. Workspace shortcuts work while another app is focused, and select without arranging when Canopy is paused. Existing pane/view shortcuts retain their bindings. Upgrades add missing workspace bindings; if a new default conflicts with a customization, that new binding starts disabled.
 
-Click a shortcut in Settings to record a replacement. Escape cancels; Delete disables it. Internal duplicates are rejected and system conflicts are reported.
+Open **Canopy menu → Keyboard Shortcuts…**, or **Settings → Shortcuts**. Actions are grouped into Workspaces, Layout and navigation, Recall saved views, and Save views. Click a combination and press your replacement with Control, Option, Command, or Shift. Tab and arrow keys work too. Escape cancels; Delete disables the action. Use the checkbox to enable or disable a shortcut, the reset arrow for one action, or **Restore All Defaults** for everything.
+
+Changes save automatically, including in the demo, and take effect when you release the recorded key. Global shortcuts pause during recording so your old binding cannot trigger a grid switch while you edit. Internal conflicts identify the other action and keep the recorder open for another attempt; unavailable system/global bindings are reported above the list. Shortcut edits do not rearrange or restack windows.
 
 ## URL commands
 

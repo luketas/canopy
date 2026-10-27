@@ -58,7 +58,7 @@ Drag a seam to resize both sides. Native resize writes run on a background worke
 
 ## Get started
 
-Canopy is in early development. **macOS 14+**, **Swift 6**, and Xcode Command Line Tools are required. Apple silicon and Intel builds are supported. The current version is **0.9.0**; public Developer ID signing and notarization are not yet provided.
+Canopy is in early development. **macOS 14+**, **Swift 6**, and Xcode Command Line Tools are required. Apple silicon and Intel builds are supported. The current version is **0.9.1**; public Developer ID signing and notarization are not yet provided.
 
 ### Build on your Mac
 
@@ -101,7 +101,7 @@ Press **Control–Option–A** to arrange the visible, unminimized windows on th
 | Frame the focused window | ⌃ ⌥ Return |
 | Undo / redo in the editor | ⌘ Z / ⇧ ⌘ Z |
 
-⌃ Control · ⌥ Option · ⌘ Command · ⇧ Shift. Shortcuts work globally and are configurable in Settings. Cycling skips empty grids and grids whose apps are unavailable on the current Desktop. Older default workspace-cycle bindings migrate to Option–Tab; custom and disabled bindings are preserved. [All shortcuts and URL commands →](docs/usage.md#default-keyboard-shortcuts)
+⌃ Control · ⌥ Option · ⌘ Command · ⇧ Shift. Shortcuts work globally. Open **Canopy menu → Keyboard Shortcuts…** to record your own combinations, enable or disable actions, and reset individual shortcuts or all defaults. Changes save automatically. Cycling skips empty grids and grids whose apps are unavailable on the current Desktop. Older default workspace-cycle bindings migrate to Option–Tab; custom and disabled bindings are preserved. [All shortcuts and URL commands →](docs/usage.md#default-keyboard-shortcuts)
 
 ## Permissions, privacy, and current limits
 

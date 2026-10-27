@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.9.1 — 2026-10-27
+
+Make keyboard shortcuts easier to configure from a direct menu entry and grouped Settings list. Add per-action enable switches and reset controls, automatic persistence, and inline conflicts naming the assigned action. Preserve shortcut changes made in the demo without saving demo windows into the real workspace.
+
+Suspend Carbon and AppKit global shortcuts while recording, capture Tab and arrows before focus navigation, and resume after key release or cancellation. Keep the recorder open after rejected combinations. Clean up capture when focus leaves or the recorder is removed, and prevent queued old hotkey IDs from invoking newly assigned actions. Shortcut changes no longer reapply window layouts.
+
 ## 0.9.0 — 2026-10-27
 
 Add an Always Floating app blacklist with a dedicated Settings tab, application picker, running-app menu, and window context action. Include Shottr by default on new and upgraded workspaces, while preserving an explicit removal across relaunches. Keep blacklisted windows tracked for native stacking but out of every grid, auto layout, docking, app-to-grid routing, and previews. Restore previously managed windows and remove memberships across all tabs; Undo cannot bypass an active blacklist rule.

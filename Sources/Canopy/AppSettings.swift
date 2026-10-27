@@ -7,11 +7,11 @@ struct SettingsView: View {
     @State private var loginEnabled = SMAppService.mainApp.status == .enabled
     @State private var loginMessage: String?
     var body: some View {
-        TabView {
-            general.tabItem { Label("General",systemImage: "gearshape") }
-            shortcuts.tabItem { Label("Shortcuts",systemImage: "keyboard") }
-            floatingApps.tabItem { Label("Floating Apps",systemImage: "rectangle.on.rectangle") }
-            workspace.tabItem { Label("Workspace",systemImage: "square.split.2x2") }
+        TabView(selection: $store.settingsSection) {
+            general.tabItem { Label("General",systemImage: "gearshape") }.tag("general")
+            shortcuts.tabItem { Label("Shortcuts",systemImage: "keyboard") }.tag("shortcuts")
+            floatingApps.tabItem { Label("Floating Apps",systemImage: "rectangle.on.rectangle") }.tag("floating")
+            workspace.tabItem { Label("Workspace",systemImage: "square.split.2x2") }.tag("workspace")
         }.padding(12).frame(width: 560,height: 660)
     }
     private var general: some View {
@@ -59,23 +59,40 @@ struct SettingsView: View {
         }.formStyle(.grouped)
     }
     private var shortcuts: some View {
-        Form {
-            Section {
-                Text("Workspace shortcuts switch whole grids from any app. Pane shortcuts navigate inside the current grid. Click a shortcut, then press your new combination. Escape cancels; Delete disables it. Use at least one modifier key.")
-                    .font(.caption).foregroundStyle(.secondary)
-                ForEach(store.preferences.shortcuts) { binding in
-                    HStack {
-                        Text(binding.title)
-                        Spacer()
-                        ShortcutRecorder(value: binding,onRecord: store.changeShortcut).frame(width: 145,height: 26)
+        VStack(alignment: .leading, spacing: 10) {
+            Text("Click a shortcut and press a new combination with a modifier key. Escape cancels; Delete disables. Changes save automatically and work from any app.")
+                .font(.callout).foregroundStyle(.secondary)
+            if let error = store.shortcutConfigurationError {
+                Text(error).font(.callout).foregroundStyle(.red).accessibilityLabel("Shortcut conflict: \(error)")
+            }
+            if let status = store.shortcutStatus {
+                Text(status).font(.caption).foregroundStyle(.secondary)
+            }
+            Form {
+                ForEach(ShortcutBinding.sections,id: \.self) { section in
+                    Section(section) {
+                        ForEach(store.preferences.shortcuts.filter { $0.section == section }) { binding in
+                            HStack(spacing: 8) {
+                                Toggle(binding.title,isOn: Binding(get: {
+                                    store.preferences.shortcuts.first { $0.id == binding.id }?.enabled ?? false
+                                },set: { store.setShortcutEnabled(binding.id,enabled: $0) }))
+                                    .toggleStyle(.checkbox)
+                                Spacer(minLength: 4)
+                                ShortcutRecorder(value: binding,onRecord: store.changeShortcut,
+                                    onRecordingChanged: { store.recordShortcut(binding.id,recording: $0) })
+                                    .frame(width: 145,height: 26)
+                                Button { store.resetShortcut(binding.id) } label: {
+                                    Image(systemName: "arrow.counterclockwise")
+                                }.buttonStyle(.borderless).disabled(binding.isDefault)
+                                    .help("Reset \(binding.title) to its default shortcut")
+                                    .accessibilityLabel("Reset \(binding.title)")
+                            }
+                        }
                     }
                 }
-            }
-            Section {
-                Button("Restore Default Shortcuts") { store.updatePreferences { $0.shortcuts = ShortcutBinding.defaults } }
-                if let status = store.shortcutStatus { Text(status).font(.caption).foregroundStyle(.secondary) }
-            }
-        }.formStyle(.grouped)
+            }.formStyle(.grouped)
+            Button("Restore All Defaults") { store.restoreDefaultShortcuts() }
+        }.padding(8)
     }
     private var workspace: some View {
         Form {
@@ -143,26 +160,62 @@ struct SettingsView: View {
 struct ShortcutRecorder: NSViewRepresentable {
     var value: ShortcutBinding
     var onRecord: (ShortcutBinding) -> Bool
-    func makeNSView(context: Context) -> RecorderButton { RecorderButton(value: value,onRecord: onRecord) }
-    func updateNSView(_ view: RecorderButton,context: Context) { view.value = value; view.onRecord = onRecord; if !view.recording { view.title = value.label } }
+    var onRecordingChanged: (Bool) -> Void
+    func makeNSView(context: Context) -> RecorderButton {
+        RecorderButton(value: value,onRecord: onRecord,onRecordingChanged: onRecordingChanged)
+    }
+    func updateNSView(_ view: RecorderButton,context: Context) {
+        view.value = value; view.onRecord = onRecord; view.onRecordingChanged = onRecordingChanged
+        if !view.recording { view.title = value.label }
+    }
+    static func dismantleNSView(_ view: RecorderButton,coordinator: ()) { view.finishRecording() }
 }
 
 final class RecorderButton: NSButton {
     var value: ShortcutBinding
     var onRecord: (ShortcutBinding) -> Bool
-    var recording = false
-    init(value: ShortcutBinding,onRecord: @escaping (ShortcutBinding) -> Bool) {
-        self.value = value; self.onRecord = onRecord; super.init(frame: .zero)
+    var onRecordingChanged: (Bool) -> Void
+    private(set) var recording = false
+    private var pendingKeyUp: UInt16?
+    private var resignObserver: NSObjectProtocol?
+    init(value: ShortcutBinding,onRecord: @escaping (ShortcutBinding) -> Bool,onRecordingChanged: @escaping (Bool) -> Void) {
+        self.value = value; self.onRecord = onRecord; self.onRecordingChanged = onRecordingChanged; super.init(frame: .zero)
         title = value.label; bezelStyle = .rounded; setButtonType(.momentaryPushIn)
         target = self; action = #selector(beginRecording); setAccessibilityLabel("Record shortcut for \(value.title)")
     }
     required init?(coder: NSCoder) { return nil }
+    deinit { if let resignObserver { NotificationCenter.default.removeObserver(resignObserver) } }
     override var acceptsFirstResponder: Bool { true }
-    @objc private func beginRecording() { recording = true; title = "Press shortcut…"; window?.makeFirstResponder(self) }
-    override func resignFirstResponder() -> Bool { recording = false; title = value.label; return true }
+    override func viewDidMoveToWindow() {
+        super.viewDidMoveToWindow()
+        if let resignObserver { NotificationCenter.default.removeObserver(resignObserver); self.resignObserver = nil }
+        guard let window else { finishRecording(); return }
+        resignObserver = NotificationCenter.default.addObserver(forName: NSWindow.didResignKeyNotification,object: window,queue: .main) { [weak self] _ in
+            MainActor.assumeIsolated { self?.finishRecording() }
+        }
+    }
+    @objc func beginRecording() {
+        guard !recording else { return }
+        window?.makeFirstResponder(self)
+        recording = true; pendingKeyUp = nil; title = "Press shortcut…"; onRecordingChanged(true)
+    }
+    func finishRecording() {
+        guard recording else { return }
+        recording = false; pendingKeyUp = nil; title = value.label; onRecordingChanged(false)
+    }
+    override func resignFirstResponder() -> Bool { finishRecording(); return true }
+    override func performKeyEquivalent(with event: NSEvent) -> Bool {
+        guard recording, event.type == .keyDown else { return super.performKeyEquivalent(with: event) }
+        keyDown(with: event); return true
+    }
+    override func keyUp(with event: NSEvent) {
+        if recording, pendingKeyUp == event.keyCode { finishRecording() }
+        else { super.keyUp(with: event) }
+    }
     override func keyDown(with event: NSEvent) {
         guard recording else { super.keyDown(with: event); return }
-        if event.keyCode == 53 { recording = false; title = value.label; return }
+        if event.keyCode == 53 { finishRecording(); return }
+        guard pendingKeyUp == nil, !event.isARepeat else { return }
         var result = value
         if event.keyCode == 51 || event.keyCode == 117 { result.enabled = false }
         else {
@@ -178,7 +231,11 @@ final class RecorderButton: NSButton {
             result.key = special[event.keyCode] ?? event.charactersIgnoringModifiers?.uppercased() ?? "Key \(event.keyCode)"
             result.enabled = true
         }
-        if onRecord(result) { value = result }
-        recording = false; title = value.label
+        if onRecord(result) {
+            value = result; title = value.label
+            // Re-register only after release so this press cannot also invoke
+            // the action just assigned, including when the key repeats.
+            pendingKeyUp = event.keyCode
+        } else { title = "Try another shortcut…" }
     }
 }
