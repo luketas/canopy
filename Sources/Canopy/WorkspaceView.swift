@@ -35,6 +35,7 @@ struct WorkspaceView: View {
     @State private var renamingGrid: String?
     @State private var gridName = ""
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    @Environment(\.openSettings) private var openSettings
 
     var body: some View {
         NavigationSplitView {
@@ -75,10 +76,15 @@ struct WorkspaceView: View {
                 HStack(spacing: 14) {
                     Label(store.isDemo ? "Demo · no real windows are moved" : store.isFixtureTesting ? "Fixture test · only disposable windows" : store.isArranging ? "Arranging your windows" : "Paused · layout changes stay in Canopy",
                           systemImage: store.isDemo ? "play.rectangle" : store.isArranging ? "circle.inset.filled" : "pause.circle")
+                        .lineLimit(1)
                     Spacer()
-                    Button("Shortcuts", systemImage: "keyboard") { showHelp.toggle() }
-                        .buttonStyle(.borderless)
-                        .popover(isPresented: $showHelp) { ShortcutHelp(store: store).padding(24) }
+                    Button("Shortcuts", systemImage: "keyboard") { showSettings("shortcuts") }
+                        .labelStyle(.titleAndIcon).buttonStyle(.borderless).fixedSize()
+                        .help("Configure keyboard shortcuts")
+                    Button("Settings", systemImage: "gearshape") { showSettings("general") }
+                        .labelStyle(.titleAndIcon).buttonStyle(.bordered).fixedSize()
+                        .keyboardShortcut(",",modifiers: .command)
+                        .help("Open Canopy Settings (⌘,)")
                 }.font(.caption).foregroundStyle(.secondary).padding(.horizontal, 20).padding(.vertical, 12)
             }
         }
@@ -222,8 +228,15 @@ struct WorkspaceView: View {
                     .font(.caption).foregroundStyle(.secondary).fixedSize(horizontal: false,vertical: true)
                 if !store.isDemo { Button("Open Demo") { store.enterDemo() }.buttonStyle(.link) }
             }.padding(16)
+            Button("Help & Gestures",systemImage: "questionmark.circle") { showHelp.toggle() }
+                .buttonStyle(.borderless).padding(.bottom,12)
+                .popover(isPresented: $showHelp) { ShortcutHelp(store: store).padding(24) }
         }.frame(width: geometry.size.width, height: geometry.size.height)
         }
+    }
+
+    private func showSettings(_ section: String) {
+        store.settingsSection = section; openSettings(); NSApp.activate(ignoringOtherApps: true)
     }
 
     private func filteredWindows(inGrid: Bool) -> [WindowRecord] {

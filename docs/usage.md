@@ -67,6 +67,8 @@ Workspace switching needs Accessibility but no Screen Recording grant. **Animate
 
 ## Previews and settings
 
+Open **Settings** from the bottom-right of the main window, beside **Edit Grids** on the desktop selector, or near the top of Canopy’s menu-bar menu. **⌘,** opens Settings while Canopy is focused. The main window’s **Shortcuts** button opens the keyboard editor directly; **Help & Gestures** in the sidebar keeps the usage reference available. Desktop workspace tabs scroll horizontally when needed so Settings and Edit Grids remain visible.
+
 **Show window contents** in Settings requests optional Screen Recording access. ScreenCaptureKit supplies still images only; no video or image files are recorded. The cache is bounded to 64 entries / 64 MiB and refreshes on a timer while arrangement or the inspector is visible. It clears when disabled.
 
 In **Settings → General**, turn off **Show grid overlay** for windows-only mode. Canopy resizes and positions native app windows without a persistent backdrop, split handles, miniature cards, or pane tab strips. Small slots stay native and respect app minimum sizes where possible; windows can overlap neighboring slots. Inactive grids remain ordinary windows behind the selected apps instead of being covered by Canopy’s backdrop. Docking previews and Overview remain available when requested.

@@ -400,6 +400,7 @@ final class DesktopCoordinator {
                 bar.setAccessibilityHelp(bar.toolTip)
                 bar.onSelect = { [weak store] id in store?.selectedDisplay = plan.display.id; store?.selectWorkspaceGrid(id,activate: true) }
                 bar.onOpen = { [weak store] in store?.onOpenWorkspace?() }
+                bar.onSettings = { [weak store] in store?.onOpenSettings?("general") }
                 let panel = workspaceBars[plan.display.id] ?? OverlayPanel(rect: rect,interactive: true,view: bar)
                 let top = NSScreen.screens.first?.frame.maxY ?? 0
                 panel.setFrame(NSRect(x: rect.x,y: top-rect.maxY,width: rect.width,height: rect.height),display: true)

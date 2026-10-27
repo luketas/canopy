@@ -107,6 +107,7 @@ final class WorkspaceStore: ObservableObject {
     var onPreferencesChanged: (() -> Void)?
     var onRequestCamera: (() -> Void)?
     var onOpenWorkspace: (() -> Void)?
+    var onOpenSettings: ((String) -> Void)?
     var onRequestPreviews: ((Bool) -> Void)?
     private(set) var bridge: any WindowManaging
     private var timer: Timer?

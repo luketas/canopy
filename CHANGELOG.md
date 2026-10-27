@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.10.1 — 2026-10-27
+
+Make Settings visible in the main window footer and next to Edit Grids on the desktop grid selector, with labeled gear buttons. Open keyboard configuration directly from Shortcuts, preserve gesture help in the sidebar, and bring Settings and Keyboard Shortcuts near the top of the menu-bar menu. Support Command–Comma from the workspace window.
+
+Keep desktop actions fixed while overflowing workspace tabs scroll horizontally, and reveal the selected tab after a workspace change. Preserve native sizing, workspace switching, and selector placement.
+
 ## 0.10.0 — 2026-10-27
 
 Add a Show grid overlay setting for windows-only layouts: resize and position native apps without the workspace backdrop, persistent dividers, miniature cards, or pane tabs. Keep small slots native, bound minimum-size expansion to the current viewport, and skip overlay transition animation and background restacking. Preserve on-demand docking previews, Overview, workspace routing, keyboard commands, and restoration.

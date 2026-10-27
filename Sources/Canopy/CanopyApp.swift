@@ -38,11 +38,15 @@ private struct WorkspaceRoot: View {
     @ObservedObject var store: WorkspaceStore
     let delegate: AppDelegate
     @Environment(\.openWindow) private var openWindow
+    @Environment(\.openSettings) private var openSettings
     var body: some View {
         WorkspaceView(store: store).onAppear {
             delegate.connect(store)
             store.onOpenWorkspace = {
                 openWindow(id: "workspace"); NSApp.activate(ignoringOtherApps: true)
+            }
+            store.onOpenSettings = { [weak store] section in
+                store?.settingsSection = section; openSettings(); NSApp.activate(ignoringOtherApps: true)
             }
         }
     }
@@ -54,6 +58,12 @@ private struct MenuContent: View {
     @Environment(\.openSettings) private var openSettings
     var body: some View {
         Button("Open Workspace") { openWindow(id: "workspace"); NSApp.activate(ignoringOtherApps: true) }
+        Button("Settings…",systemImage: "gearshape") {
+            store.settingsSection = "general"; openSettings(); NSApp.activate(ignoringOtherApps: true)
+        }
+        Button("Keyboard Shortcuts…",systemImage: "keyboard") {
+            store.settingsSection = "shortcuts"; openSettings(); NSApp.activate(ignoringOtherApps: true)
+        }
         Divider()
         Menu("Workspaces") {
             Button("Previous Workspace") { store.performCommand("workspace-previous") }
@@ -85,10 +95,6 @@ private struct MenuContent: View {
             Button("Restore All Managed Windows") { store.floatAll() }.disabled(!store.hasWindowsToRestore)
         }
         Divider()
-        Button("Keyboard Shortcuts…") {
-            store.settingsSection = "shortcuts"; openSettings(); NSApp.activate(ignoringOtherApps: true)
-        }
-        SettingsLink { Text("Settings…") }
         Button("Quit Canopy") { NSApp.terminate(nil) }
     }
 }

@@ -80,6 +80,8 @@ Use the compact, tab, and tile corner roles in the frontmatter. Tile outlines pr
 
 ### Toolbar and status
 
+Keep a labeled **Settings** gear button visible at the main window’s bottom-right, independent of sidebar visibility. The adjacent **Shortcuts** button opens keyboard configuration directly; **Help & Gestures** in the sidebar opens the reference. Preserve primary toolbar room for Apply Grid. Settings opens General, where grid appearance and selector placement are first; Command–Comma provides the native shortcut.
+
 The primary action is **Use My Windows** in demo mode and **Apply Grid** for real windows, retaining icon and text. Apply Grid applies chosen membership and is disabled without Accessibility permission or membership. **Restore Windows** remains available after an unsuccessful restore. **Recover Interrupted Session** belongs in File and menu-bar menus, with recovery also in Workspace settings; preserve toolbar room for Apply Grid.
 
 Demo and fixture modes are labeled. Real-window mode starts paused, and the footer distinguishes paused editing from active arrangement. A dismissible inline message explains permission, storage, or frame-application problems. Optional in-memory still previews are separate from native movement.
@@ -88,7 +90,7 @@ Demo and fixture modes are labeled. Real-window mode starts paused, and the foot
 
 Editor workspace tabs scroll horizontally, showing names, membership counts, and restrained selected fills. **New Grid** creates and selects an empty grid. Context menus offer Duplicate Grid, rename, and close; the last grid cannot close. Desktop is excluded from membership: do not add a Desktop grid tile.
 
-The native **Canopy Workspaces** strip works with the editor closed. Per-display workspace-name buttons expose selected state, and **Edit Grids** reopens the editor. Keep panels and native buttons stable during ordinary switches; refresh state rather than recreating controls on each layout update. Rebuild buttons when workspace identities or names change. Tab widths adapt between 36 and 180 points, reserving 110 points for Edit Grids. Selected tabs use subdued system-accent fill and semibold text.
+The native **Canopy Workspaces** strip works with the editor closed. Per-display workspace-name buttons expose selected state, and **Edit Grids** reopens the editor. Keep panels and native buttons stable during ordinary switches; refresh state rather than recreating controls on each layout update. Rebuild buttons when workspace identities or names change. Tab widths adapt between 90 and 180 points inside a horizontally scrolling region. Reserve 210 points for fixed, labeled Edit Grids and Settings buttons; keep the active workspace visible when selection changes. Selected tabs use subdued system-accent fill and semibold text.
 
 ### Membership controls
 
