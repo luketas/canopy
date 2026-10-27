@@ -1,6 +1,6 @@
 # Native acceptance checks
 
-Current automated evidence: **159 tests pass (33 XCTest and 126 Swift Testing)** on 2026-10-26. Native evidence below separates controlled fixtures, development runs against actual third-party apps, and final-package smoke checks. Physical multiple displays remain unverified.
+Current automated evidence: **166 tests pass (33 XCTest and 133 Swift Testing)** on 2026-10-27. Native evidence below separates controlled fixtures, development runs against actual third-party apps, and final-package smoke checks. Physical multiple displays remain unverified.
 
 Environment: macOS 26.2 (25C56), Apple silicon, Apple Swift 6.2. The native test session uses `scripts/build-test-app.sh` and `dist/CanopyFixture.app`. This embeds restricted discovery in the test bundle and isolates persistence under `Canopy/TestSessions`. Export Window Frames records the fixture's own actual geometry. The baseline includes three 640 × 432 windows, with two duplicate titles, at (100, 828), (210, 758), and (320, 688). Compare after Arrange and Restore; do not substitute source assertions for native frame evidence.
 
@@ -9,6 +9,12 @@ Additional native observations: shortcut recording enters its waiting state and 
 The renewed reviewer scored all three fixes **resolved**, disposition **ship** for that fix list, after inspecting exact 1160 × 760 and expanded 3440 × 1410. The expanded view also confirms Desktop-specific content. The window was returned to 1160 × 760. No broader native-behavior approval is implied.
 
 On 2026-10-18, System Settings initially showed Canopy's Accessibility switch **on**, but `AXIsProcessTrusted()` was false even after relaunch. The user authorized refreshing only Canopy's grant. Toggling alone did not resolve it; removing its stale entry and selecting the exact current bundle did. The user completed the later Touch ID prompt directly. No TCC reset, other-app permission change, or personal-window arrangement was used.
+
+## Version 0.8.3 Chrome/incognito identity collisions — 2026-10-27
+
+The automated suite passes 166 tests (33 XCTest + 133 Swift Testing). The regression fixture demonstrates that the previous soft matcher can select a live regular Chrome window for a new incognito window. All six discovery orders of one regular and two identical incognito windows now retain three distinct identities. Additional checks cover reordered AX lists and titles, missing native lookup, reused or claimed session references, ambiguous recovery, defensive duplicate-ID inventory construction without dropping distinct windows, and opening/closing incognito windows while preserving the regular window’s grid and restoration baseline.
+
+No Canopy crash report was present on this local Mac; the duplicate-ID failure path was identified from source and reproduced with injected discovery records. A live test was attempted but Computer Use reported the Mac locked. The user-reported physical incognito sequence remains to be retested on an unlocked Mac; the automated checks do not certify that reproduction.
 
 ## Version 0.8.2 native activation reconciliation — 2026-10-26
 

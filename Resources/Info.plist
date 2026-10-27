@@ -6,8 +6,8 @@
     <key>CFBundleIdentifier</key><string>org.canopywm.Canopy</string>
     <key>CFBundleExecutable</key><string>Canopy</string>
     <key>CFBundlePackageType</key><string>APPL</string>
-    <key>CFBundleShortVersionString</key><string>0.8.2</string>
-    <key>CFBundleVersion</key><string>17</string>
+    <key>CFBundleShortVersionString</key><string>0.8.3</string>
+    <key>CFBundleVersion</key><string>18</string>
     <key>CFBundleIconFile</key><string>Canopy</string>
     <key>NSPrincipalClass</key><string>NSApplication</string>
     <key>NSScreenCaptureUsageDescription</key><string>Optional window previews use still images kept only in memory.</string>

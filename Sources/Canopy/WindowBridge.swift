@@ -160,6 +160,8 @@ final class WindowBridge: WindowManaging {
         destroyedWindowIDs = []
         windowAliases = [:]
         let previous = invalidatedWindows.merging(windows) { _,live in live }
+        let running = Set(NSWorkspace.shared.runningApplications.filter { !$0.isTerminated }.map(\.processIdentifier))
+        let liveIDs = Set(previous.values.filter { running.contains($0.pid) }.map(\.id))
         var found: [DiscoveredWindow] = []
         var claimed = Set<String>()
         var claimedNative: [String:String] = [:]
@@ -228,7 +230,7 @@ final class WindowBridge: WindowManaging {
             var occurrences: [String: Int] = [:]
             for element in elements {
                 AXUIElementSetMessagingTimeout(element, 0.15)
-                let prior = previous.values.first { CFEqual($0.element,element) }
+                let prior = previous.values.first { $0.pid == app.processIdentifier && CFEqual($0.element,element) }
                 let isMinimized = observedMinimized(element,key: prior?.id,fallback: prior?.minimized ?? false)
                 #if DEBUG
                 var moveSettable: DarwinBoolean = false
@@ -245,19 +247,10 @@ final class WindowBridge: WindowManaging {
                 let title = attribute(element, kAXTitleAttribute) as? String ?? "Untitled window"
                 let ordinal = occurrences[title, default: 0]
                 occurrences[title] = ordinal + 1
-                let identity = "\(bundle)|\(title)|\(ordinal)"
                 let identifier = attribute(element, kAXIdentifierAttribute) as? String
                 let document = attribute(element, kAXDocumentAttribute) as? String
                 let fingerprint = WindowFingerprint(bundle: bundle,title: title,ordinal: ordinal,identifier: identifier,document: document,frame: frame)
-                let sessionRecord = previous.values.first { CFEqual($0.element, element) }?.record
-                let matchedID = WindowMatcher.match(fingerprint,candidates: saved.filter { !claimed.contains($0.id) }.map { ($0.id,$0.fingerprint) })
-                let existing = sessionRecord.map { old in saved.first { $0.id == old.id } ?? old }
-                    ?? saved.first { $0.id == matchedID }
-                    ?? saved.first { $0.identity == identity && !claimed.contains($0.id) }
-                var record = existing ?? WindowRecord(id: UUID().uuidString, bundleID: bundle,
-                    app: app.localizedName ?? bundle, title: title, ordinal: ordinal, originalFrame: frame)
-                record.title = title; record.ordinal = ordinal
-                record.axIdentifier = identifier; record.document = document
+                let sessionRecord = prior?.record
                 let exactNativeMatches = cgWindows.filter { item in
                     guard (item[kCGWindowOwnerPID as String] as? Int) == Int(app.processIdentifier),
                           (item[kCGWindowLayer as String] as? Int) == 0,
@@ -267,17 +260,11 @@ final class WindowBridge: WindowManaging {
                 }
                 let stableNumber = NativeWindowResolver.number(element)
                     ?? (exactNativeMatches.count == 1 ? (exactNativeMatches[0][kCGWindowNumber as String] as? NSNumber)?.uint32Value : nil)
-                let nativeNumber = stableNumber ?? sessionRecord?.nativeWindowNumber
-                    ?? (record.nativeProcessID == app.processIdentifier ? record.nativeWindowNumber : nil)
+                let record = WindowIdentity.record(for: fingerprint,app: app.localizedName ?? bundle,
+                    processID: app.processIdentifier,nativeNumber: stableNumber,session: sessionRecord,
+                    saved: saved,liveIDs: liveIDs,claimed: claimed)
+                let nativeNumber = record.nativeWindowNumber
                 if let nativeNumber,claimedNative["\(app.processIdentifier):\(nativeNumber)"] != nil { continue }
-                if let stableNumber,
-                   let stable = saved.first(where: { $0.nativeWindowNumber == stableNumber && $0.nativeProcessID == app.processIdentifier && !claimed.contains($0.id) }) {
-                    record = stable
-                    record.title = title; record.ordinal = ordinal
-                    record.axIdentifier = identifier; record.document = document
-                }
-                record.nativeWindowNumber = nativeNumber
-                record.nativeProcessID = record.nativeWindowNumber == nil ? nil : app.processIdentifier
                 #if DEBUG
                 diagnostics.append(["bundle":bundle,"nativeNumber":nativeNumber.map(Int.init) ?? -1,
                                     "onCurrentDesktop":nativeNumber.map(onScreenNumbers.contains) ?? false])
@@ -293,7 +280,6 @@ final class WindowBridge: WindowManaging {
         }
         // AXWindows can omit minimized windows and windows on another Space.
         // Keep known live elements; absence from that list is not destruction.
-        let running = Set(NSWorkspace.shared.runningApplications.filter { !$0.isTerminated }.map(\.processIdentifier))
         for old in previous.values where !claimed.contains(old.id) && running.contains(old.pid)
             && !excluded.contains(old.record.bundleID) && (allowedBundles?.contains(old.record.bundleID) ?? true) {
             if let number = old.windowNumber,let canonical = claimedNative["\(old.pid):\(number)"] {
@@ -322,7 +308,8 @@ final class WindowBridge: WindowManaging {
             retained.onScreen = !retained.minimized && (pending || old.windowNumber.map(onScreenNumbers.contains) == true)
             found.append(retained); claimed.insert(old.id)
         }
-        windows = Dictionary(uniqueKeysWithValues: found.map { ($0.id, $0) })
+        windows = Self.discoveryInventory(found,currentFrame: { self.frame(of: $0) })
+        found = Array(windows.values)
         for window in found {
             guard let number = window.record.nativeWindowNumber else { continue }
             for old in saved where old.id != window.id && old.nativeWindowNumber == number && old.nativeProcessID == window.pid {
@@ -335,6 +322,25 @@ final class WindowBridge: WindowManaging {
             ($0.record.app.localizedLowercase, $0.record.title.localizedLowercase, $0.record.ordinal)
                 < ($1.record.app.localizedLowercase, $1.record.title.localizedLowercase, $1.record.ordinal)
         }
+    }
+
+    /// Preserve distinct physical windows even if a future discovery edge case
+    /// reuses a record ID; dictionary construction must never terminate the app.
+    static func discoveryInventory(_ discovered: [DiscoveredWindow],currentFrame: (AXUIElement) -> LayoutRect?) -> [String:DiscoveredWindow] {
+        var result: [String:DiscoveredWindow] = [:]
+        for var window in discovered {
+            if let previous = result[window.id] {
+                let previousNumber = previous.windowNumber ?? previous.record.nativeWindowNumber
+                let number = window.windowNumber ?? window.record.nativeWindowNumber
+                let conflictingNumbers = previousNumber != nil && number != nil && previousNumber != number
+                let sameNativeWindow = number != nil && number == previousNumber
+                if previous.pid == window.pid && !conflictingNumbers && (sameNativeWindow || CFEqual(previous.element,window.element)) { continue }
+                repeat { window.record.id = UUID().uuidString } while result[window.id] != nil
+                if let frame = currentFrame(window.element) { window.record.originalFrame = frame }
+            }
+            result[window.id] = window
+        }
+        return result
     }
 
     func frame(of element: AXUIElement) -> LayoutRect? {

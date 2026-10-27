@@ -57,7 +57,7 @@ Drag a seam to resize both sides. Native resize writes run on a background worke
 
 ## Get started
 
-Canopy is in early development. **macOS 14+**, **Swift 6**, and Xcode Command Line Tools are required. Apple silicon and Intel builds are supported. The current version is **0.8.2**; public Developer ID signing and notarization are not yet provided.
+Canopy is in early development. **macOS 14+**, **Swift 6**, and Xcode Command Line Tools are required. Apple silicon and Intel builds are supported. The current version is **0.8.3**; public Developer ID signing and notarization are not yet provided.
 
 ### Build on your Mac
 
@@ -119,7 +119,7 @@ swift test
 bash scripts/build-test-app.sh
 ```
 
-The automated suite currently has **159 passing checks**. It uses injected window bridges and temporary storage, so it never moves your real windows. The separate native fixture supports manual Arrange/Restore checks. CI runs the suite and produces a universal app bundle and source archive.
+The automated suite currently has **166 passing checks**. It uses injected window bridges and temporary storage, so it never moves your real windows. The separate native fixture supports manual Arrange/Restore checks. CI runs the suite and produces a universal app bundle and source archive.
 
 Bug reports with the app version, macOS version, and steps to reproduce are welcome. For window movement changes, include native frame readbacks and restoration results. Avoid attaching private window titles or unredacted workspace files.
 

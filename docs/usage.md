@@ -2,7 +2,7 @@
 
 An independent, MIT-licensed macOS window manager inspired by [TrellisWM](https://trelliswm.app/). Windows belong to nested spaces: dock, group them as tabs, and zoom into the work you need.
 
-**Version 0.8.2:** live resizing updates window geometry without raising workspace backgrounds over apps. Floating windows can fill empty slots, split beside a slot or the whole grid, or join a slot as tabs. Workspace switching retains the native layering introduced in 0.6.0. See [acceptance results](acceptance.md).
+**Version 0.8.3:** live resizing updates window geometry without raising workspace backgrounds over apps. Floating windows can fill empty slots, split beside a slot or the whole grid, or join a slot as tabs. Workspace switching retains the native layering introduced in 0.6.0. See [acceptance results](acceptance.md).
 
 ## Build and run
 

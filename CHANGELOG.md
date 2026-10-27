@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.8.3 — 2026-10-27
+
+Fix a duplicate-record-ID crash path when opening multiple identical Chrome/incognito windows. Resolve native and existing-session identity before soft fingerprint recovery, reserve live windows’ IDs, reject claimed identities and conflicting native IDs, and stop borrowing WindowServer numbers from title/geometry matches. Keep recovery matching available across app restarts. Inventory construction now deduplicates repeated references to one physical window and assigns separate IDs to distinct windows on a collision instead of trapping. Preserve the regular Chrome window’s grid membership and restoration baseline.
+
 ## 0.8.2 — 2026-10-26
 
 Fix missed app-to-grid activation when macOS reports application activation before the frontmost process, focused window, or unminimized visibility has settled. Carry process IDs and AX event elements through notification handling; reconcile immediately and over a bounded retry window, refreshing discovery only when identity or visibility is unresolved. Include Dock clicks on an already-active app even if macOS sends no new activation notification. Cancel stale requests on newer activation, manual grid/layout navigation, pause, and shutdown; ignore background-app main-window changes.
