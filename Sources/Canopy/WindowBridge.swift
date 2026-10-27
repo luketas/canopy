@@ -185,10 +185,12 @@ final class WindowBridge: WindowManaging {
             return pid_t(pid)
         })
         for app in NSWorkspace.shared.runningApplications where app.activationPolicy != .prohibited
-            && (app.activationPolicy == .regular || windowOwners.contains(app.processIdentifier)) {
+            && (app.activationPolicy == .regular || windowOwners.contains(app.processIdentifier)
+                || app.bundleIdentifier.map(excluded.contains) == true) {
             guard app.processIdentifier != ProcessInfo.processInfo.processIdentifier,
-                  !app.isTerminated, let bundle = app.bundleIdentifier, !excluded.contains(bundle),
+                  !app.isTerminated, let bundle = app.bundleIdentifier,
                   allowedBundles?.contains(bundle) ?? true else { continue }
+            let alwaysFloating = excluded.contains(bundle)
             let root = AXUIElementCreateApplication(app.processIdentifier)
             AXUIElementSetMessagingTimeout(root, 0.15)
             var rawWindows: CFTypeRef?
@@ -239,11 +241,12 @@ final class WindowBridge: WindowManaging {
                 diagnostics.append(["bundle":bundle,"subrole":attribute(element,kAXSubroleAttribute) as? String ?? "missing","frame":diagnosticFrame.map { [$0.x,$0.y,$0.width,$0.height] } ?? [],"minimized":isMinimized,"movableResult":moveResult.rawValue,"movable":moveSettable.boolValue])
                 #endif
                 let subrole = attribute(element,kAXSubroleAttribute) as? String
-                guard subrole == kAXStandardWindowSubrole || (isMinimized && subrole == kAXDialogSubrole),
+                guard subrole == kAXStandardWindowSubrole || (isMinimized && subrole == kAXDialogSubrole)
+                        || (alwaysFloating && attribute(element,kAXRoleAttribute) as? String == kAXWindowRole),
                       let frame = frame(of: element) ?? (isMinimized ? prior?.record.originalFrame : nil), frame.width > 80, frame.height > 60 else { continue }
                 var settable: DarwinBoolean = false
                 let canMove = AXUIElementIsAttributeSettable(element,kAXPositionAttribute as CFString,&settable) == .success && settable.boolValue
-                guard isMinimized || canMove else { continue }
+                guard alwaysFloating || isMinimized || canMove else { continue }
                 let title = attribute(element, kAXTitleAttribute) as? String ?? "Untitled window"
                 let ordinal = occurrences[title, default: 0]
                 occurrences[title] = ordinal + 1
@@ -281,7 +284,7 @@ final class WindowBridge: WindowManaging {
         // AXWindows can omit minimized windows and windows on another Space.
         // Keep known live elements; absence from that list is not destruction.
         for old in previous.values where !claimed.contains(old.id) && running.contains(old.pid)
-            && !excluded.contains(old.record.bundleID) && (allowedBundles?.contains(old.record.bundleID) ?? true) {
+            && (allowedBundles?.contains(old.record.bundleID) ?? true) {
             if let number = old.windowNumber,let canonical = claimedNative["\(old.pid):\(number)"] {
                 windowAliases[old.id] = canonical; continue
             }

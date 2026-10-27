@@ -9,6 +9,9 @@ final class WindowEvents {
     private var workspaceTokens: [NSObjectProtocol] = []
     private var pending: DispatchWorkItem?
     private var mouseMonitor: Any?
+    private var applicationsObservation: NSKeyValueObservation?
+    private var floatingBundles = Set<String>()
+    private var floatingProcesses = Set<pid_t>()
     var onChange: (() -> Void)?
     var onDestroyed: ((AXUIElement) -> Void)?
     var onSpaceChanged: (() -> Void)?
@@ -37,9 +40,27 @@ final class WindowEvents {
                 self?.onFocusChange?(NSWorkspace.shared.frontmostApplication?.processIdentifier,nil)
             }
         }
+        // Menu-bar utilities with LSUIElement do not emit the usual workspace
+        // launch notification. Observe the app list so their AX observer is
+        // ready when a blacklisted utility opens its first editor/panel.
+        applicationsObservation = NSWorkspace.shared.observe(\.runningApplications,options: [.new]) { [weak self] _,_ in
+            Task { @MainActor in
+                guard let self else { return }
+                let current = Set(NSWorkspace.shared.runningApplications.filter {
+                    $0.bundleIdentifier.map(self.floatingBundles.contains) == true
+                }.map(\.processIdentifier))
+                guard current != self.floatingProcesses else { return }
+                self.floatingProcesses = current; self.schedule()
+            }
+        }
     }
-    func synchronize(_ windows: [String:DiscoveredWindow]) {
-        let applications = NSWorkspace.shared.runningApplications.filter { $0.activationPolicy == .regular && $0.processIdentifier != getpid() }
+    func synchronize(_ windows: [String:DiscoveredWindow],alwaysFloatingApps: Set<String> = []) {
+        floatingBundles = alwaysFloatingApps
+        floatingProcesses = Set(NSWorkspace.shared.runningApplications.filter { $0.bundleIdentifier.map(alwaysFloatingApps.contains) == true }.map(\.processIdentifier))
+        let applications = NSWorkspace.shared.runningApplications.filter {
+            $0.processIdentifier != getpid() && $0.activationPolicy != .prohibited
+                && ($0.activationPolicy == .regular || $0.bundleIdentifier.map(alwaysFloatingApps.contains) == true)
+        }
         let pids = Set(applications.map(\.processIdentifier))
         for pid in Array(observers.keys) where !pids.contains(pid) { remove(pid) }
         for app in applications {
@@ -98,5 +119,6 @@ final class WindowEvents {
         for token in workspaceTokens { NSWorkspace.shared.notificationCenter.removeObserver(token) }
         workspaceTokens = []
         if let mouseMonitor { NSEvent.removeMonitor(mouseMonitor); self.mouseMonitor = nil }
+        applicationsObservation?.invalidate(); applicationsObservation = nil
     }
 }

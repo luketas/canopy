@@ -1,6 +1,6 @@
 # Native acceptance checks
 
-Current automated evidence: **166 tests pass (33 XCTest and 133 Swift Testing)** on 2026-10-27. Native evidence below separates controlled fixtures, development runs against actual third-party apps, and final-package smoke checks. Physical multiple displays remain unverified.
+Current automated evidence: **174 tests pass (33 XCTest and 141 Swift Testing)** on 2026-10-27. Native evidence below separates controlled fixtures, development runs against actual third-party apps, and final-package smoke checks. Physical multiple displays remain unverified.
 
 Environment: macOS 26.2 (25C56), Apple silicon, Apple Swift 6.2. The native test session uses `scripts/build-test-app.sh` and `dist/CanopyFixture.app`. This embeds restricted discovery in the test bundle and isolates persistence under `Canopy/TestSessions`. Export Window Frames records the fixture's own actual geometry. The baseline includes three 640 × 432 windows, with two duplicate titles, at (100, 828), (210, 758), and (320, 688). Compare after Arrange and Restore; do not substitute source assertions for native frame evidence.
 
@@ -9,6 +9,12 @@ Additional native observations: shortcut recording enters its waiting state and 
 The renewed reviewer scored all three fixes **resolved**, disposition **ship** for that fix list, after inspecting exact 1160 × 760 and expanded 3440 × 1410. The expanded view also confirms Desktop-specific content. The window was returned to 1160 × 760. No broader native-behavior approval is implied.
 
 On 2026-10-18, System Settings initially showed Canopy's Accessibility switch **on**, but `AXIsProcessTrusted()` was false even after relaunch. The user authorized refreshing only Canopy's grant. Toggling alone did not resolve it; removing its stale entry and selecting the exact current bundle did. The user completed the later Touch ID prompt directly. No TCC reset, other-app permission change, or personal-window arrangement was used.
+
+## Version 0.9.0 always-floating app blacklist — 2026-10-27
+
+The automated suite passes 174 tests (33 XCTest + 141 Swift Testing). New regressions cover app-wide removal from multiple grids, restoration once, nonactivating raises after grid switching, rejection by all docking/auto-layout paths, future utility-window creation, no activation-driven grid switching, minimized/off-Desktop boundaries, one-time Shottr migration with persistent opt-out, explicit re-inclusion, import and Undo policy enforcement, and monitor-local stacking scope. The installed Shottr app bundle was inspected read-only to confirm its identifier, `cc.ffitch.shottr`.
+
+Live Settings/picker and Shottr stacking checks were attempted, but Computer Use reported the local Mac locked. Native utility-panel behavior and visual layering remain pending on an unlocked Mac; injected-bridge tests do not certify those results.
 
 ## Version 0.8.3 Chrome/incognito identity collisions — 2026-10-27
 

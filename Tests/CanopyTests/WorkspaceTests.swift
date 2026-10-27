@@ -42,7 +42,7 @@ final class FakeWindows: WindowManaging {
     }
     func requestPermission() { permissionRequests += 1 }
     func discover(saved: [WindowRecord], excluded: Set<String>) -> [DiscoveredWindow] {
-        windows.values.filter { !excluded.contains($0.record.bundleID) }.sorted { $0.id < $1.id }.map { window in
+        windows.values.sorted { $0.id < $1.id }.map { window in
             var result = window
             if let record = saved.first(where: { $0.id == result.id }) { result.record = record }
             if let title = discoveredTitles[result.id] { result.record.title = title }

@@ -2,7 +2,7 @@
 
 An independent, MIT-licensed macOS window manager inspired by [TrellisWM](https://trelliswm.app/). Windows belong to nested spaces: dock, group them as tabs, and zoom into the work you need.
 
-**Version 0.8.3:** live resizing updates window geometry without raising workspace backgrounds over apps. Floating windows can fill empty slots, split beside a slot or the whole grid, or join a slot as tabs. Workspace switching retains the native layering introduced in 0.6.0. See [acceptance results](acceptance.md).
+**Version 0.9.0:** live resizing updates window geometry without raising workspace backgrounds over apps. Floating windows can fill empty slots, split beside a slot or the whole grid, or join a slot as tabs. Workspace switching retains the native layering introduced in 0.6.0. See [acceptance results](acceptance.md).
 
 ## Build and run
 
@@ -50,6 +50,12 @@ In the inspector, drag a sidebar row, tab, or card body onto a card edge to spli
 Inactive tabs, off-camera windows, and windows represented by miniatures remain live behind a normal-level workspace background. Switching does not minimize apps. Restore also reverses minimization owned by older Canopy sessions. User-minimized windows keep their tree positions and temporarily give neighbors the space. Closed windows are removed; terminated apps retain dormant slots that reconnect when reopened.
 
 Full-screen and other-Desktop windows are excluded from the live grid. Discovery requires a native window ID confirmed by WindowServer on the current Desktop. An optional macOS Accessibility SPI resolves the ID directly; if unavailable, discovery falls back to unique exact frame matching. This SPI is checked at runtime and may change in future macOS versions. Space transitions temporarily freeze writes; leaving all managed windows behind pauses arrangement. Return to the original Desktop to resume or restore.
+
+## Always floating apps
+
+Open **Settings → Floating Apps** to blacklist apps that should hover above your grids. **Add App…** accepts one or more applications from disk, including apps that are not running; **Running Apps** lets you choose an open app. You can also right-click a window and choose **Always Float [App]**.
+
+Shottr is included by default, including when upgrading an existing workspace. **Allow in Grids** removes a rule, and that choice survives relaunch. Rules apply to every current and future window of the app. Blacklisting removes its windows from all grid tabs and restores windows Canopy had arranged. Auto Layout, Add All, manual docking, drag previews, and app-to-grid activation leave blacklisted apps alone. Their visible windows stay above the grid without taking keyboard focus. Minimized and other-Desktop windows are not raised or unminimized. Allowing an app again makes it available; it does not automatically put it back into a grid.
 
 ## Workspace transitions
 

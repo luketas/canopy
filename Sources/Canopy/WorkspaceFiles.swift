@@ -6,7 +6,8 @@ import Carbon
 @MainActor
 extension WorkspaceStore {
     static func validate(_ state: WorkspaceSnapshot) throws {
-        guard (1...4).contains(state.version),state.records.count <= 2000,state.displays.count <= 32 else { throw CocoaError(.fileReadCorruptFile) }
+        guard (1...4).contains(state.version),state.records.count <= 2000,state.displays.count <= 32,
+              state.floatingAppsVersion == nil || state.floatingAppsVersion == 1 else { throw CocoaError(.fileReadCorruptFile) }
         let ids = state.records.map(\.id),displayIDs = state.displays.map(\.id)
         let managed = state.displays.flatMap { $0.allGridWindows }
         guard Set(ids).count == ids.count,Set(displayIDs).count == displayIDs.count,

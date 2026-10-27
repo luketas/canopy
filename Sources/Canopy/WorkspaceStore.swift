@@ -69,6 +69,7 @@ struct WorkspaceSnapshot: Codable {
     var preferences: UserPreferences?
     var recoveryWindows: [WindowRecord]?
     var recoveryMinimized: Set<String>?
+    var floatingAppsVersion: Int?
 }
 
 @MainActor
@@ -85,7 +86,8 @@ final class WorkspaceStore: ObservableObject {
     private(set) var layoutDisplayScope: String?
     @Published var hasPermission = false
     @Published var message: String?
-    @Published var excludedApps: Set<String> = []
+    static let defaultFloatingApps: Set<String> = ["cc.ffitch.shottr"]
+    @Published var excludedApps: Set<String> = WorkspaceStore.defaultFloatingApps
     @Published var gap: Double = 8
     @Published var shortcutStatus: String?
     @Published var preferences = UserPreferences()
@@ -182,7 +184,7 @@ final class WorkspaceStore: ObservableObject {
                 if self.bridge.forgetWindow(key) { self.destroyedWindows.insert(key) }
             }
             events = observer
-            if !isDemo { observer.synchronize(self.bridge.windows) }
+            if !isDemo { observer.synchronize(self.bridge.windows,alwaysFloatingApps: excludedApps) }
         }
     }
 
@@ -200,7 +202,7 @@ final class WorkspaceStore: ObservableObject {
         return visible(focusedNode) ?? visible(current?.root)
     }
     var listedRecords: [WindowRecord] {
-        isDemo ? records : records.filter { bridge.windows[$0.id] != nil && !unavailable.contains($0.id) }
+        records.filter { !excludedApps.contains($0.bundleID) && (isDemo || (bridge.windows[$0.id] != nil && !unavailable.contains($0.id))) }
     }
     var breadcrumbs: [LayoutNode] {
         guard let root = current?.root, let focus = focusedNode, let path = root.path(to: focus.id) else { return [] }
@@ -211,7 +213,13 @@ final class WorkspaceStore: ObservableObject {
     var canRedo: Bool { !redoStack.isEmpty }
     var hasWindowsToRestore: Bool { !movedWindows.isEmpty || !managerMinimized.isEmpty }
     static func isDesktop(_ key: String) -> Bool { key.hasPrefix("desktop:") }
-    var availableRecords: [WindowRecord] { isDemo ? records : records.filter { bridge.windows[$0.id] != nil && !unavailable.contains($0.id) } }
+    var availableRecords: [WindowRecord] { listedRecords }
+    func isAlwaysFloating(_ key: String) -> Bool {
+        (bridge.windows[key]?.record ?? record(key)).map { excludedApps.contains($0.bundleID) } ?? false
+    }
+    var alwaysFloatingWindows: [DiscoveredWindow] {
+        bridge.windows.values.filter { excludedApps.contains($0.record.bundleID) && $0.onScreen && !$0.minimized && !$0.fullScreen }
+    }
     var floatingRecords: [WindowRecord] {
         let managed = Set(displays.flatMap { $0.root?.allWindows ?? [] })
         return availableRecords.filter { !managed.contains($0.id) && !unavailable.contains($0.id) }
@@ -220,9 +228,11 @@ final class WorkspaceStore: ObservableObject {
         isDemo ? [] : Set(bridge.windows.values.filter(\.minimized).map(\.id)).subtracting(managerMinimized)
     }
     var unavailable: Set<String> {
-        if isDemo { return [] }
+        let excluded = Set(records.filter { excludedApps.contains($0.bundleID) }.map(\.id))
+            .union(bridge.windows.values.filter { excludedApps.contains($0.record.bundleID) }.map(\.id))
+        if isDemo { return excluded }
         let elsewhere = bridge.windows.values.filter { $0.fullScreen || (!$0.onScreen && !$0.minimized && !managerMinimized.contains($0.id)) }.map(\.id)
-        return minimized.union(dormantWindows).union(elsewhere)
+        return minimized.union(dormantWindows).union(elsewhere).union(excluded)
     }
     func record(_ key: String) -> WindowRecord? {
         if Self.isDesktop(key) { return WindowRecord(id: key,bundleID: "org.canopywm.desktop",app: "Desktop",title: "Floating windows and wallpaper",ordinal: 0,originalFrame: LayoutRect(width: 800,height: 600)) }
@@ -331,9 +341,10 @@ final class WorkspaceStore: ObservableObject {
                 && (bridge.preservesUnlistedWindows || !bridge.runningBundleIDs.contains($0.bundleID) || movedWindows.contains($0.id) || managerMinimized.contains($0.id) || occludedWindows.contains($0.id))
         }
         records = discovered.map(\.record)+absent
+        pruneAlwaysFloatingApps()
         dormantWindows = Set(absent.map(\.id))
         let retained = Set(records.map(\.id))
-        var changed = records != oldRecords
+        var changed = records != oldRecords || displays != oldLayouts
         for index in displays.indices {
             for g in displays[index].grids.indices {
                 for missing in (displays[index].grids[g].root?.allWindows ?? []).filter({ !retained.contains($0) && !Self.isDesktop($0) }) {
@@ -350,8 +361,9 @@ final class WorkspaceStore: ObservableObject {
         if applyingLayout,!routed,isArranging && (displays != oldLayouts || lastAvailability != availability) { applyLayout() }
         lastAvailability = availability
         destroyedWindows = []
-        events?.synchronize(bridge.windows)
+        events?.synchronize(bridge.windows,alwaysFloatingApps: excludedApps)
         if changed { persist() }
+        if applyingLayout { raiseAlwaysFloatingWindows() }
     }
 
     func handleNativeActivation(processID: pid_t?,element: AXUIElement? = nil) {
@@ -389,6 +401,7 @@ final class WorkspaceStore: ObservableObject {
         }
         guard let key,let window = bridge.windows[key],window.onScreen,!window.minimized,!window.fullScreen else { return false }
         _ = routeFocusedWindowToWorkspace(window: key)
+        raiseAlwaysFloatingWindows()
         return true
     }
     private func cancelPendingActivationRouting() {
@@ -400,7 +413,7 @@ final class WorkspaceStore: ObservableObject {
     @discardableResult func routeFocusedWindowToWorkspace(window requestedKey: String? = nil,requireNewFocus: Bool = false) -> Bool {
         guard isArranging,!isDemo,!interactiveDrag,!workspaceSwitchPending,!spaceTransitionPending,
               let key = requestedKey ?? bridge.focusedWindow(),(!requireNewFocus || key != layoutFocusedWindow),let window = bridge.windows[key],
-              window.onScreen,!window.minimized,!window.fullScreen else { return false }
+              window.onScreen,!window.minimized,!window.fullScreen,!excludedApps.contains(window.record.bundleID) else { return false }
         // Prefer an already active arrangement for shared windows.
         let connected = Set(displayDescriptors.map(\.id))
         let eligible = displays.indices.filter { connected.contains(displays[$0].id) && arrangedDisplayIDs?.contains(displays[$0].id) != false }
@@ -604,6 +617,7 @@ final class WorkspaceStore: ObservableObject {
     }
 
     func dock(_ key: String, target: String?, edge: DockEdge) {
+        guard !isAlwaysFloating(key) else { return }
         if !gridColumns.isEmpty,edge == .left || edge == .right {
             _ = giveWindowOwnColumn(key,beside: target,before: edge == .left); return
         }
@@ -844,11 +858,45 @@ final class WorkspaceStore: ObservableObject {
         }
     }
     func excludeApp(_ bundle: String) {
-        let removed = records.filter { $0.bundleID == bundle }
-        for record in removed { floatWindow(record.id) }
-        excludedApps.insert(bundle); refresh(); persist()
+        guard !bundle.isEmpty,bundle != "org.canopywm.Canopy",!excludedApps.contains(bundle) else { return }
+        cancelPendingActivationRouting()
+        resizeWork?.invalidate(); resizeWork = nil; isResizing = false; bridge.endLiveResize()
+        let previous = Set(displays.flatMap { $0.allGridWindows })
+        excludedApps.insert(bundle); pruneAlwaysFloatingApps()
+        restoreNewlyFloating(previous)
+        if let selectedWindow,isAlwaysFloating(selectedWindow) { self.selectedWindow = nil }
+        verifiedLayouts = nil
+        refresh(applyingLayout: false); persist(); applyLayout()
     }
     func includeApp(_ bundle: String) { excludedApps.remove(bundle); refresh(); persist() }
+    private func pruneAlwaysFloatingApps() {
+        let keys = Set((records+pendingRecovery).filter { excludedApps.contains($0.bundleID) }.map(\.id))
+            .union(bridge.windows.values.filter { excludedApps.contains($0.record.bundleID) }.map(\.id))
+        for i in displays.indices {
+            for g in displays[i].grids.indices {
+                for key in keys { displays[i].grids[g].root = displays[i].grids[g].root?.removing(window: key) }
+            }
+            normalizeFocus(i)
+        }
+    }
+    func raiseAlwaysFloatingWindows(on displayIDs: Set<String>? = nil) {
+        guard isArranging,!isDemo,bridge.trusted,!isResizing else { return }
+        let screens = displayDescriptors.filter { displayIDs?.contains($0.id) != false }
+        let windows = alwaysFloatingWindows.filter { window in
+            guard let frame = bridge.frame(of: window.element) else { return false }
+            return screens.contains { $0.monitorBounds.contains(x: frame.midX,y: frame.midY) }
+        }
+        guard !windows.isEmpty else { return }
+        let info = CGWindowListCopyWindowInfo([.optionOnScreenOnly,.excludeDesktopElements],kCGNullWindowID) as? [[String:Any]] ?? []
+        let ranks = Dictionary(info.enumerated().compactMap { index,item -> (UInt32,Int)? in
+            (item[kCGWindowNumber as String] as? NSNumber).map { ($0.uint32Value,index) }
+        },uniquingKeysWith: min)
+        let topGrid = lastNativeVisible.compactMap { bridge.windows[$0]?.windowNumber.flatMap { ranks[$0] } }.min()
+        for window in windows.sorted(by: { (ranks[$0.windowNumber ?? 0] ?? Int.max) > (ranks[$1.windowNumber ?? 0] ?? Int.max) }) {
+            if let rank = window.windowNumber.flatMap({ ranks[$0] }),let topGrid,rank < topGrid { continue }
+            bridge.raise(window.id,activate: false)
+        }
+    }
     func updateGap(_ value: Double) { gap = min(32, max(0, value)); persist(); applyLayout() }
 
     func applyLayout(activating keyToActivate: String? = nil,on displayID: String? = nil,rollback: [DisplayWorkspace]? = nil) {
@@ -935,6 +983,7 @@ final class WorkspaceStore: ObservableObject {
         #endif
         if !applyingGeometryOnly { persist() }
         onLayoutDidApply?(plans)
+        if !applyingGeometryOnly { raiseAlwaysFloatingWindows(on: affectedDisplays) }
         guard !interactiveDrag else { return }
         let appliedLayouts = displays
         layoutVerification = Task { @MainActor [weak self] in
@@ -1058,6 +1107,7 @@ final class WorkspaceStore: ObservableObject {
             }
             normalizeFocus(i)
         }
+        pruneAlwaysFloatingApps()
     }
     private func normalizeFocus(_ i: Int) {
         for g in displays[i].grids.indices {
@@ -1194,13 +1244,15 @@ final class WorkspaceStore: ObservableObject {
         var recovery = records.filter { movedWindows.contains($0.id) }
         recovery += pendingRecovery.filter { entry in !recovery.contains { $0.id == entry.id } }
         return WorkspaceSnapshot(displays: displays,records: records,excludedApps: excludedApps,gap: gap,
-            preferences: preferences,recoveryWindows: recovery,recoveryMinimized: managerMinimized.union(recoveryMinimized))
+            preferences: preferences,recoveryWindows: recovery,recoveryMinimized: managerMinimized.union(recoveryMinimized),floatingAppsVersion: 1)
     }
     func restoreSnapshot(_ state: WorkspaceSnapshot) {
         displays = state.displays; records = state.records; excludedApps = state.excludedApps; gap = state.gap
         preferences = state.preferences ?? UserPreferences()
         preferences.shortcuts = ShortcutBinding.addingMissingDefaults(to: preferences.shortcuts)
         pendingRecovery = state.recoveryWindows ?? []; recoveryMinimized = state.recoveryMinimized ?? []
+        if state.floatingAppsVersion == nil { excludedApps.formUnion(Self.defaultFloatingApps) }
+        pruneAlwaysFloatingApps()
     }
     private func load() {
         guard FileManager.default.fileExists(atPath: persistenceURL.path) else { return }

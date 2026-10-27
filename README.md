@@ -34,6 +34,7 @@ Canopy is a native SwiftUI and AppKit app. No subscriptions, accounts, or packag
 - **Tabs across apps.** Group windows in the same slot and switch between them without changing the rest of the grid.
 - **Direct editing.** Drag apps into place, remove them without quitting, resize a shared seam, and undo layout changes.
 - **Quick switching.** Inactive windows stay live behind the workspace background. Returning to an unchanged grid skips geometry writes and Dock minimization.
+- **Always floating apps.** Blacklist utilities such as Shottr so they stay above the grid and are never auto-arranged or docked. Add apps in Settings → Floating Apps; Shottr is included by default.
 - **Local control.** Window metadata stays on your Mac. Screen Recording is optional and only used for in-memory previews.
 
 ## Drag a window into place
@@ -57,7 +58,7 @@ Drag a seam to resize both sides. Native resize writes run on a background worke
 
 ## Get started
 
-Canopy is in early development. **macOS 14+**, **Swift 6**, and Xcode Command Line Tools are required. Apple silicon and Intel builds are supported. The current version is **0.8.3**; public Developer ID signing and notarization are not yet provided.
+Canopy is in early development. **macOS 14+**, **Swift 6**, and Xcode Command Line Tools are required. Apple silicon and Intel builds are supported. The current version is **0.9.0**; public Developer ID signing and notarization are not yet provided.
 
 ### Build on your Mac
 
@@ -119,7 +120,7 @@ swift test
 bash scripts/build-test-app.sh
 ```
 
-The automated suite currently has **166 passing checks**. It uses injected window bridges and temporary storage, so it never moves your real windows. The separate native fixture supports manual Arrange/Restore checks. CI runs the suite and produces a universal app bundle and source archive.
+The automated suite currently has **174 passing checks**. It uses injected window bridges and temporary storage, so it never moves your real windows. The separate native fixture supports manual Arrange/Restore checks. CI runs the suite and produces a universal app bundle and source archive.
 
 Bug reports with the app version, macOS version, and steps to reproduce are welcome. For window movement changes, include native frame readbacks and restoration results. Avoid attaching private window titles or unredacted workspace files.
 

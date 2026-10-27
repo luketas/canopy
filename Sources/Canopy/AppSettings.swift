@@ -10,6 +10,7 @@ struct SettingsView: View {
         TabView {
             general.tabItem { Label("General",systemImage: "gearshape") }
             shortcuts.tabItem { Label("Shortcuts",systemImage: "keyboard") }
+            floatingApps.tabItem { Label("Floating Apps",systemImage: "rectangle.on.rectangle") }
             workspace.tabItem { Label("Workspace",systemImage: "square.split.2x2") }
         }.padding(12).frame(width: 560,height: 660)
     }
@@ -91,17 +92,36 @@ struct SettingsView: View {
                     Button("Recover Windows") { store.recoverWindows() }.disabled(store.isDemo || !store.hasPermission)
                 }
             }
-            Section("Excluded apps") {
-                if store.excludedApps.isEmpty { Text("Right-click a window in the workspace to exclude its app.").foregroundStyle(.secondary) }
-                ForEach(store.excludedApps.sorted(),id: \.self) { bundle in
-                    HStack { Text(bundle); Spacer(); Button("Include") { store.includeApp(bundle) } }
-                }
-            }
             Section("About") {
                 Text("Canopy \(Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String ?? "") · MIT licensed").font(.callout.weight(.medium))
                 Text("An independent open source nested window manager inspired by TrellisWM. Window metadata and preview images stay on this Mac.")
                     .font(.caption).foregroundStyle(.secondary)
                 if let message = store.message { Text(message).font(.caption).textSelection(.enabled) }
+            }
+        }.formStyle(.grouped)
+    }
+    private var floatingApps: some View {
+        Form {
+            Section("Always Floating Apps") {
+                Text("These apps stay above the grid. Canopy never arranges or docks their windows. Shottr is included by default.")
+                    .font(.callout).foregroundStyle(.secondary)
+                HStack {
+                    Button("Add App…") { store.chooseAppsToBlacklist() }
+                    Menu("Running Apps") {
+                        ForEach(store.applicationsToBlacklist) { app in
+                            Button(app.name) { store.excludeApp(app.id) }
+                        }
+                    }
+                }
+                ForEach(store.blacklistedApplications) { app in
+                    HStack {
+                        Text(app.name)
+                        Spacer()
+                        Button("Allow in Grids") { store.includeApp(app.id) }
+                            .accessibilityLabel("Allow \(app.name) in grids")
+                    }
+                }
+                if store.excludedApps.isEmpty { Text("No apps are blacklisted.").foregroundStyle(.secondary) }
             }
         }.formStyle(.grouped)
     }

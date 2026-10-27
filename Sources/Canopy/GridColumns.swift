@@ -63,7 +63,7 @@ extension WorkspaceStore {
     }
     @discardableResult
     func giveWindowOwnColumn(_ key: String,beside targetNode: String? = nil,before: Bool = false) -> Bool {
-        guard record(key) != nil,!Self.isDesktop(key),isDemo || !unavailable.contains(key),
+        guard record(key) != nil,!Self.isDesktop(key),!isAlwaysFloating(key),isDemo || !unavailable.contains(key),
               let i = displays.firstIndex(where: { $0.id == selectedDisplay }) else { return false }
         var columns = gridColumns
         if columns.isEmpty {

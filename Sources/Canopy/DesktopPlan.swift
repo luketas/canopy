@@ -167,7 +167,7 @@ extension WorkspaceStore {
     }
 
     func dock(_ keys: [String], intent: DockIntent, wholeGroup: Bool = false) {
-        guard !keys.isEmpty,keys.allSatisfy({ record($0) != nil && !Self.isDesktop($0) }),
+        guard !keys.isEmpty,keys.allSatisfy({ record($0) != nil && !Self.isDesktop($0) && !isAlwaysFloating($0) }),
               let destinationIndex = displays.firstIndex(where: { $0.id == intent.display }) else { return }
         let item: LayoutNode
         if wholeGroup, let source = displays.compactMap({ $0.root?.leaf(containing: keys[0]) }).first,

@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.9.0 — 2026-10-27
+
+Add an Always Floating app blacklist with a dedicated Settings tab, application picker, running-app menu, and window context action. Include Shottr by default on new and upgraded workspaces, while preserving an explicit removal across relaunches. Keep blacklisted windows tracked for native stacking but out of every grid, auto layout, docking, app-to-grid routing, and previews. Restore previously managed windows and remove memberships across all tabs; Undo cannot bypass an active blacklist rule.
+
+Raise visible blacklisted windows above grid windows without activating them. Respect minimized/fullscreen/other-Desktop boundaries and monitor-local auto-layout scope. Track blacklisted accessory apps and their utility panels; observe running-app changes so menu-bar apps are discovered even without ordinary launch notifications.
+
 ## 0.8.3 — 2026-10-27
 
 Fix a duplicate-record-ID crash path when opening multiple identical Chrome/incognito windows. Resolve native and existing-session identity before soft fingerprint recovery, reserve live windows’ IDs, reject claimed identities and conflicting native IDs, and stop borrowing WindowServer numbers from title/geometry matches. Keep recovery matching available across app restarts. Inventory construction now deduplicates repeated references to one physical window and assigns separate IDs to distinct windows on a collision instead of trapping. Preserve the regular Chrome window’s grid membership and restoration baseline.

@@ -117,7 +117,7 @@ final class DesktopCoordinator {
     private func update() {
         guard let store else { return }
         let visible = NSApp.windows.contains { $0.title == "Canopy" && $0.isVisible && !$0.isMiniaturized }
-        previews.update(windows: Array(store.bridge.windows.values),enabled: store.preferences.previewsEnabled && !store.isDemo && (store.isArranging || visible))
+        previews.update(windows: store.bridge.windows.values.filter { !store.excludedApps.contains($0.record.bundleID) },enabled: store.preferences.previewsEnabled && !store.isDemo && (store.isArranging || visible))
         if store.previewStatus != previews.status { store.previewStatus = previews.status }
         guard store.isArranging,!store.isDemo,store.hasPermission else { hideDesktop(); return }
         if keyMonitor == nil {
@@ -198,7 +198,7 @@ final class DesktopCoordinator {
     private var floatingWindows: [DiscoveredWindow] {
         guard let store else { return [] }
         let managed = Set(store.displays.flatMap { $0.allGridWindows })
-        return store.bridge.windows.values.filter { !managed.contains($0.id) && $0.onScreen && !$0.minimized && !$0.fullScreen }
+        return store.bridge.windows.values.filter { (!managed.contains($0.id) || store.isAlwaysFloating($0.id)) && $0.onScreen && !$0.minimized && !$0.fullScreen }
     }
     private func raiseFloatingWindows(_ plans: [DesktopLayoutPlan]) {
         guard let store else { return }
@@ -215,6 +215,7 @@ final class DesktopCoordinator {
         // Floating windows are common to all grids. Keep the selected grid
         // in front of them after the destination app has been activated.
         for placement in plans.flatMap(\.nativePlacements) { store.bridge.raise(placement.window,activate: false) }
+        store.raiseAlwaysFloatingWindows(on: Set(plans.map { $0.display.id }))
     }
     private func positionBackgroundsBehindActive(_ plans: [DesktopLayoutPlan]) {
         guard let store else { return }
@@ -528,6 +529,9 @@ final class DesktopCoordinator {
         if framingFromDesktop,event.type == .leftMouseDragged { cameraView?.updateScreenFrame(point); return }
         if framingFromDesktop,event.type == .leftMouseUp { cameraView?.finishScreenFrame(point); framingFromDesktop = false; return }
         if event.type == .magnify {
+            let window = windowAt(point)
+            if let window,store.isAlwaysFloating(window.id) { return }
+            if window == nil,let bundle = NSWorkspace.shared.frontmostApplication?.bundleIdentifier,store.excludedApps.contains(bundle) { return }
             guard store.preferences.globalGestures,event.modifierFlags.contains(.option) || windowAt(point) == nil else { return }
             if cameraPanel == nil { showCamera(at: point) }
             cameraView?.consumeMagnification(event.magnification,atScreen: point,ended: event.phase == .ended || event.phase == .cancelled)
@@ -535,6 +539,8 @@ final class DesktopCoordinator {
         }
         if event.type == .leftMouseDown {
             let window = windowAt(point)
+            if let window,store.isAlwaysFloating(window.id) { return }
+            if window == nil,let bundle = NSWorkspace.shared.frontmostApplication?.bundleIdentifier,store.excludedApps.contains(bundle) { return }
             #if DEBUG
             dragTrace.append(["phase":"hit","window":window?.record.bundleID ?? "none",
                 "frame":window.flatMap { store.bridge.frame(of: $0.element) }.map { [$0.x,$0.y,$0.width,$0.height] } ?? [],

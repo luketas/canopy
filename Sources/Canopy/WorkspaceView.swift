@@ -358,7 +358,7 @@ struct WorkspaceView: View {
         Button("Remove from This Grid") { store.removeWindowFromCurrentGrid(record.id) }.disabled(!store.currentGridWindowIDs.contains(record.id))
         if !store.isDemo {
             Divider()
-            Button("Don't Arrange \(record.app)") { store.excludeApp(record.bundleID) }
+            Button("Always Float \(record.app)") { store.excludeApp(record.bundleID) }
         }
     }
 }
