@@ -819,7 +819,7 @@ final class WorkspaceStore: ObservableObject {
             guard !live.isEmpty else { return .zero }
             if node.isLeaf {
                 let sizes = live.map { bridge.minimumSize($0) ?? .zero }
-                let strip = preferences.showTabStrips && live.count > 1 ? 28.0 : 0
+                let strip = preferences.showsPaneTabStrips && live.count > 1 ? 28.0 : 0
                 return CGSize(width: max(preferences.minimumWidth,sizes.map(\.width).max() ?? 0),
                               height: max(preferences.minimumHeight,sizes.map(\.height).max() ?? 0)+strip)
             }
@@ -1293,12 +1293,10 @@ final class WorkspaceStore: ObservableObject {
         guard !isDemo, canPersist else { return }
         writeSnapshot(snapshot)
     }
-    func persistShortcutPreferences() {
+    func persistPreferences() {
         guard isDemo else { persist(); return }
         guard var saved = realSnapshot else { return }
-        var savedPreferences = saved.preferences ?? UserPreferences()
-        savedPreferences.shortcuts = preferences.shortcuts
-        saved.preferences = savedPreferences
+        saved.preferences = preferences
         realSnapshot = saved
         guard canPersist else { return }
         writeSnapshot(saved)

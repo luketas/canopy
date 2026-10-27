@@ -58,7 +58,7 @@ Drag a seam to resize both sides. Native resize writes run on a background worke
 
 ## Get started
 
-Canopy is in early development. **macOS 14+**, **Swift 6**, and Xcode Command Line Tools are required. Apple silicon and Intel builds are supported. The current version is **0.9.1**; public Developer ID signing and notarization are not yet provided.
+Canopy is in early development. **macOS 14+**, **Swift 6**, and Xcode Command Line Tools are required. Apple silicon and Intel builds are supported. The current version is **0.10.0**; public Developer ID signing and notarization are not yet provided.
 
 ### Build on your Mac
 
@@ -82,10 +82,12 @@ Keep using one app bundle path for a consistent macOS permission identity. Local
 1. Click **Use My Windows** and enable Canopy in **System Settings → Privacy & Security → Accessibility**.
 2. Click **New Grid**, then add windows from the sidebar or drag them into the canvas.
 3. Choose a column count and drag windows onto slot edges, centers, or column headers.
-4. Click **Apply Grid**. Workspace tabs now stay below the menu bar, even with the editor closed.
+4. Click **Apply Grid**. Workspace tabs stay at your chosen screen edge, even with the editor closed.
 5. Create another grid and switch using its tab or a shortcut. **Edit Grids** reopens the editor.
 
 **Restore Windows** returns the windows Canopy moved to their saved frames and pauses arrangement. Removing an app from a grid leaves it running. Quitting also attempts restoration; interrupted sessions keep a recovery journal for an explicit retry.
+
+Prefer ordinary windows without the persistent grid? In **Settings → General**, turn off **Show grid overlay**. Canopy keeps resizing and positioning your apps while hiding the backdrop, dividers, miniature cards, and pane tabs. Set **Grid selector** to **Top**, **Bottom**, or **Hidden** independently; keyboard workspace shortcuts keep working.
 
 ## Keep your hands on the keyboard
 

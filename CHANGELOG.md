@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.10.0 — 2026-10-27
+
+Add a Show grid overlay setting for windows-only layouts: resize and position native apps without the workspace backdrop, persistent dividers, miniature cards, or pane tabs. Keep small slots native, bound minimum-size expansion to the current viewport, and skip overlay transition animation and background restacking. Preserve on-demand docking previews, Overview, workspace routing, keyboard commands, and restoration.
+
+Add Top, Bottom, and Hidden positions for the independent desktop grid selector. Reserve the matching edge of each monitor’s usable area for both layout and docking geometry; reclaim the space when hidden. Preserve older workspace preferences and save settings changed in the demo without replacing real layouts.
+
 ## 0.9.1 — 2026-10-27
 
 Make keyboard shortcuts easier to configure from a direct menu entry and grouped Settings list. Add per-action enable switches and reset controls, automatic persistence, and inline conflicts naming the assigned action. Preserve shortcut changes made in the demo without saving demo windows into the real workspace.

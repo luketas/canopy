@@ -157,7 +157,7 @@ final class DesktopCoordinator {
         }
         stackWorkspaceBackgrounds(plans)
         guard !switchingWorkspace else { return }
-        guard let store,!isInteracting,!store.interactiveDrag,cameraPanel == nil,store.preferences.animations,
+        guard let store,!isInteracting,!store.interactiveDrag,cameraPanel == nil,store.preferences.showGridOverlay,store.preferences.animations,
               !NSWorkspace.shared.accessibilityDisplayShouldReduceMotion,!oldPlans.isEmpty else { return }
         for plan in plans where store.layoutDisplayScope == nil || plan.display.id == store.layoutDisplayScope {
             let previous = oldPlans.first { $0.display.id == plan.display.id }
@@ -172,6 +172,7 @@ final class DesktopCoordinator {
     /// It consumes empty-area clicks so they cannot reach windows behind it.
     private func stackWorkspaceBackgrounds(_ plans: [DesktopLayoutPlan]) {
         guard let store else { return }
+        guard store.preferences.showGridOverlay else { removeWorkspaceBackgrounds(); return }
         for id in Array(workspaceBackgrounds.keys) where !plans.contains(where: { $0.display.id == id }) {
             workspaceBackgrounds.removeValue(forKey: id)?.close()
         }
@@ -240,6 +241,7 @@ final class DesktopCoordinator {
     }
     private func settleNativeStack(_ plans: [DesktopLayoutPlan]) {
         layerRestack?.invalidate()
+        guard store?.preferences.showGridOverlay == true else { layerRestack = nil; return }
         let generation = backgroundGeneration
         let until = ProcessInfo.processInfo.systemUptime+0.3
         let timer = Timer(timeInterval: 1.0/60,repeats: true) { [weak self] timer in
@@ -384,11 +386,12 @@ final class DesktopCoordinator {
     private func installControls(_ plans: [DesktopLayoutPlan]) {
         guard let store,!isInteracting,!store.interactiveDrag,cameraPanel == nil,store.isArranging,store.isResizing || !isFullScreenApplication else { return }
         for panel in panels { panel.close() }; panels = []
-        for id in Array(workspaceBars.keys) where !plans.contains(where: { $0.display.id == id }) {
+        for id in Array(workspaceBars.keys) where !plans.contains(where: { $0.display.id == id && store.workspaceBarFrame($0.display) != nil }) {
             workspaceBars.removeValue(forKey: id)?.close()
         }
         for plan in plans {
-            if let workspace = store.displays.first(where: { $0.id == plan.display.id }) {
+            if let workspace = store.displays.first(where: { $0.id == plan.display.id }),
+               let rect = store.workspaceBarFrame(plan.display) {
                 let bar = (workspaceBars[plan.display.id]?.contentView as? DesktopWorkspaceBar) ?? DesktopWorkspaceBar(grids: workspace.grids,active: workspace.activeGridID)
                 bar.update(grids: workspace.grids,active: workspace.activeGridID)
                 let next = store.preferences.shortcuts.first { $0.id == "workspace-next" }?.label ?? "Disabled"
@@ -397,7 +400,6 @@ final class DesktopCoordinator {
                 bar.setAccessibilityHelp(bar.toolTip)
                 bar.onSelect = { [weak store] id in store?.selectedDisplay = plan.display.id; store?.selectWorkspaceGrid(id,activate: true) }
                 bar.onOpen = { [weak store] in store?.onOpenWorkspace?() }
-                let rect = LayoutRect(x: plan.display.frame.x,y: plan.display.frame.y,width: plan.display.frame.width,height: DesktopWorkspaceBar.height)
                 let panel = workspaceBars[plan.display.id] ?? OverlayPanel(rect: rect,interactive: true,view: bar)
                 let top = NSScreen.screens.first?.frame.maxY ?? 0
                 panel.setFrame(NSRect(x: rect.x,y: top-rect.maxY,width: rect.width,height: rect.height),display: true)
@@ -411,6 +413,7 @@ final class DesktopCoordinator {
                 }
                 #endif
             }
+            guard store.preferences.showGridOverlay else { continue }
             for id in plan.miniatureNodes {
                 guard let rect = plan.frames[id]?.intersection(plan.display.frame),let node = plan.root.node(id) else { continue }
                 let view = MiniatureView(node: node,store: store) { [weak store] in
@@ -431,7 +434,7 @@ final class DesktopCoordinator {
                     if node.id != plan.root.id {
                         addPanel(rect: Self.desktopControlRect(in: placement.rect),view: view)
                     }
-                } else if node.windows.count > 1 && store.preferences.showTabStrips {
+                } else if node.windows.count > 1 && store.preferences.showsPaneTabStrips {
                     let rect = LayoutRect(x: placement.rect.x,y: placement.rect.y,width: placement.rect.width,height: 28)
                     let view = DesktopTabsView(node: node,store: store)
                     view.onSelect = { [weak self,weak store] key in
@@ -477,9 +480,7 @@ final class DesktopCoordinator {
     }
     private func hideDesktop() {
         store?.cancelPendingWorkspaceSwitch()
-        backgroundGeneration += 1
-        layerRestack?.invalidate(); layerRestack = nil
-        for panel in workspaceBackgrounds.values { panel.orderOut(nil); panel.close() }; workspaceBackgrounds = [:]
+        removeWorkspaceBackgrounds()
         cancelTransitions()
         for panel in panels { panel.close() }
         panels = []; oldPlans = []
@@ -488,6 +489,11 @@ final class DesktopCoordinator {
         closeCamera()
         nativeDragPoll?.invalidate(); nativeDragPoll = nil
         dragging = nil; isInteracting = false; store?.interactiveDrag = false
+    }
+    private func removeWorkspaceBackgrounds() {
+        backgroundGeneration += 1
+        layerRestack?.invalidate(); layerRestack = nil
+        for panel in workspaceBackgrounds.values { panel.orderOut(nil); panel.close() }; workspaceBackgrounds = [:]
     }
 
     static func screenPoint(_ point: NSPoint = NSEvent.mouseLocation) -> CGPoint {

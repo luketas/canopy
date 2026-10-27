@@ -70,6 +70,12 @@ struct ShortcutBinding: Codable, Equatable, Identifiable {
     }
 }
 
+enum WorkspaceBarPosition: String, Codable, CaseIterable, Identifiable {
+    case top, bottom, hidden
+    var id: Self { self }
+    var title: String { rawValue.capitalized }
+}
+
 struct UserPreferences: Codable, Equatable {
     var previewsEnabled = false
     var desktopDocking = true
@@ -79,8 +85,32 @@ struct UserPreferences: Codable, Equatable {
     var minimumWidth = 220.0
     var minimumHeight = 150.0
     var showTabStrips = true
+    var showGridOverlay = true
+    var workspaceBarPosition = WorkspaceBarPosition.top
     var globalGestures = true
     var shortcuts = ShortcutBinding.defaults
+    var showsPaneTabStrips: Bool { showGridOverlay && showTabStrips }
+
+    init() {}
+    private enum CodingKeys: String, CodingKey {
+        case previewsEnabled, desktopDocking, dockingRequiresOption, animations, animationDuration
+        case minimumWidth, minimumHeight, showTabStrips, showGridOverlay, workspaceBarPosition, globalGestures, shortcuts
+    }
+    init(from decoder: Decoder) throws {
+        let c = try decoder.container(keyedBy: CodingKeys.self)
+        previewsEnabled = try c.decodeIfPresent(Bool.self,forKey: .previewsEnabled) ?? previewsEnabled
+        desktopDocking = try c.decodeIfPresent(Bool.self,forKey: .desktopDocking) ?? desktopDocking
+        dockingRequiresOption = try c.decodeIfPresent(Bool.self,forKey: .dockingRequiresOption) ?? dockingRequiresOption
+        animations = try c.decodeIfPresent(Bool.self,forKey: .animations) ?? animations
+        animationDuration = try c.decodeIfPresent(Double.self,forKey: .animationDuration) ?? animationDuration
+        minimumWidth = try c.decodeIfPresent(Double.self,forKey: .minimumWidth) ?? minimumWidth
+        minimumHeight = try c.decodeIfPresent(Double.self,forKey: .minimumHeight) ?? minimumHeight
+        showTabStrips = try c.decodeIfPresent(Bool.self,forKey: .showTabStrips) ?? showTabStrips
+        showGridOverlay = try c.decodeIfPresent(Bool.self,forKey: .showGridOverlay) ?? showGridOverlay
+        workspaceBarPosition = try c.decodeIfPresent(WorkspaceBarPosition.self,forKey: .workspaceBarPosition) ?? workspaceBarPosition
+        globalGestures = try c.decodeIfPresent(Bool.self,forKey: .globalGestures) ?? globalGestures
+        shortcuts = try c.decodeIfPresent([ShortcutBinding].self,forKey: .shortcuts) ?? shortcuts
+    }
 }
 
 struct DisplayDescriptor: Equatable, Identifiable {

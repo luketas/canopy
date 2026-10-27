@@ -17,16 +17,23 @@ struct SettingsView: View {
     private var general: some View {
         Form {
             Section("Desktop") {
+                Toggle("Show grid overlay",isOn: preference(\.showGridOverlay))
+                Text("Turn off to only resize and position app windows, without the backdrop, dividers, or pane tabs. Switching grids brings their windows forward on your normal desktop.")
+                    .font(.caption).foregroundStyle(.secondary)
+                Picker("Grid selector",selection: preference(\.workspaceBarPosition)) {
+                    ForEach(WorkspaceBarPosition.allCases) { position in Text(position.title).tag(position) }
+                }
                 Toggle("Dock by dragging window title bars",isOn: preference(\.desktopDocking))
                 Toggle("Require Option for grid-window drags",isOn: preference(\.dockingRequiresOption))
                     .disabled(!store.preferences.desktopDocking)
                 Text("Floating windows dock without a modifier: drop into an empty slot, on an edge to split, or in the center to add a tab.").font(.caption).foregroundStyle(.secondary)
                 Toggle("Show desktop tab strips",isOn: preference(\.showTabStrips))
+                    .disabled(!store.preferences.showGridOverlay)
                 Toggle("Option-pinch and wallpaper gestures",isOn: preference(\.globalGestures))
                 Text("Global gestures open Overview after macOS delivers the first event. Use the Overview button for exclusive camera input.")
                     .font(.caption).foregroundStyle(.secondary)
                 Toggle("Animate zoom and layout edits",isOn: preference(\.animations))
-                Text("Workspace switches bring the selected grid forward. Inactive windows keep their positions behind the workspace background; no minimizing or transition animation.")
+                Text("Workspace switches bring the selected grid forward without minimizing. With the grid overlay enabled, inactive windows stay behind the workspace background.")
                     .font(.caption).foregroundStyle(.secondary)
                 HStack {
                     Text("Window gap")

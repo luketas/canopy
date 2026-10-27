@@ -79,10 +79,29 @@ extension WorkspaceStore {
             if id.hasPrefix("save."),let slot = Int(id.dropFirst(5)) { saveView(slot) }
         }
     }
+    func workspaceBarFrame(_ descriptor: DisplayDescriptor) -> LayoutRect? {
+        guard !isDemo, preferences.workspaceBarPosition != .hidden else { return nil }
+        let frame = descriptor.frame
+        let height = min(DesktopWorkspaceBar.height,max(0,frame.height-1))
+        return LayoutRect(x: frame.x,
+            y: preferences.workspaceBarPosition == .bottom ? frame.maxY-height : frame.y,
+            width: frame.width,height: height)
+    }
     func desktopViewport(_ descriptor: DisplayDescriptor) -> LayoutRect {
         let frame = descriptor.frame
-        let top = isDemo ? 0 : DesktopWorkspaceBar.height
-        return LayoutRect(x: frame.x,y: frame.y+top,width: frame.width,height: max(1,frame.height-top)).inset(gap)
+        let height = workspaceBarFrame(descriptor)?.height ?? 0
+        let top = preferences.workspaceBarPosition == .top ? height : 0
+        return LayoutRect(x: frame.x,y: frame.y+top,width: frame.width,height: max(1,frame.height-height)).inset(gap)
+    }
+    /// In windows-only mode small slots remain native windows instead of
+    /// disappearing into a miniature. Let native minimum sizes overlap a slot,
+    /// while keeping the requested frame within this monitor's usable area.
+    static func windowsOnlyFrame(_ rect: LayoutRect,minimum: CGSize,in viewport: LayoutRect) -> LayoutRect? {
+        guard let visible = rect.intersection(viewport) else { return nil }
+        let width = min(viewport.width,max(visible.width,minimum.width))
+        let height = min(viewport.height,max(visible.height,minimum.height))
+        return LayoutRect(x: max(viewport.x,min(visible.x,viewport.maxX-width)),
+            y: max(viewport.y,min(visible.y,viewport.maxY-height)),width: width,height: height)
     }
     func desktopPlans() -> [DesktopLayoutPlan] {
         let descriptors = displayDescriptors.filter { !isArranging || arrangedDisplayIDs?.contains($0.id) != false }
@@ -117,9 +136,15 @@ extension WorkspaceStore {
             for p in placements where p.isActive {
                 if Self.isDesktop(p.window) { continue }
                 let leaf = root.node(p.node)
-                let strip = preferences.showTabStrips && (leaf?.windows.count ?? 0) > 1 ? 28.0 : 0
+                let strip = preferences.showsPaneTabStrips && (leaf?.windows.count ?? 0) > 1 ? 28.0 : 0
                 let rect = LayoutRect(x: p.rect.x,y: p.rect.y+strip,width: p.rect.width,height: max(1,p.rect.height-strip))
                 let minimum = bridge.minimumSize(p.window) ?? .zero
+                if !preferences.showGridOverlay {
+                    if let frame = Self.windowsOnlyFrame(rect,minimum: minimum,in: viewport) {
+                        var n = p; n.rect = frame; native.append(n)
+                    }
+                    continue
+                }
                 if viewport.contains(p.rect), rect.width >= max(preferences.minimumWidth,minimum.width), rect.height >= max(preferences.minimumHeight,minimum.height) {
                     var n = p; n.rect = rect; native.append(n)
                 } else { mini.insert(p.node) }
@@ -134,12 +159,18 @@ extension WorkspaceStore {
             if let desktop {
                 managed.formUnion(floats.map(\.id))
                 let r = desktop.rect
-                if r.width < preferences.minimumWidth || r.height < preferences.minimumHeight || !viewport.contains(r) {
+                if preferences.showGridOverlay && (r.width < preferences.minimumWidth || r.height < preferences.minimumHeight || !viewport.contains(r)) {
                     mini.insert(desktop.node)
                 } else {
                     for record in floats {
                         let original = record.originalFrame
                         let rect = CameraViewport(frame: descriptor.frame).project(original,into: r)
+                        if !preferences.showGridOverlay {
+                            if let frame = Self.windowsOnlyFrame(rect,minimum: bridge.minimumSize(record.id) ?? .zero,in: viewport) {
+                                native.append(CanopyCore.WindowPlacement(window: record.id,node: desktop.node,rect: frame,isActive: true))
+                            }
+                            continue
+                        }
                         if rect.width >= preferences.minimumWidth, rect.height >= preferences.minimumHeight, r.contains(rect) {
                             native.append(CanopyCore.WindowPlacement(window: record.id,node: desktop.node,rect: rect,isActive: true))
                         } else { mini.insert(desktop.node) }
@@ -149,7 +180,7 @@ extension WorkspaceStore {
             var seams = focus.seams(in: logical,gap: gap,unavailable: unavailable)
             for i in seams.indices { seams[i].rect = projected(seams[i].rect); seams[i].parent = projected(seams[i].parent) }
             var collapsed: [String] = []
-            for (id,rect) in frames.sorted(by: { $0.value.area > $1.value.area }) {
+            for (id,rect) in frames.sorted(by: { $0.value.area > $1.value.area }) where preferences.showGridOverlay {
                 guard let node = focus.node(id),!node.isLeaf,(rect.width < 140 || rect.height < 100),
                       !collapsed.contains(where: { focus.node($0)?.node(id) != nil }) else { continue }
                 collapsed.append(id)
@@ -231,7 +262,7 @@ extension WorkspaceStore {
         var copy = preferences; edit(&copy)
         copy.minimumWidth = min(600,max(100,copy.minimumWidth)); copy.minimumHeight = min(400,max(80,copy.minimumHeight))
         copy.animationDuration = min(1,max(0.1,copy.animationDuration))
-        preferences = copy; persist(); onPreferencesChanged?(); applyLayout()
+        preferences = copy; persistPreferences(); onPreferencesChanged?(); applyLayout()
     }
 
     func recoverWindows() {

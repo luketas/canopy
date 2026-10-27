@@ -69,6 +69,10 @@ Workspace switching needs Accessibility but no Screen Recording grant. **Animate
 
 **Show window contents** in Settings requests optional Screen Recording access. ScreenCaptureKit supplies still images only; no video or image files are recorded. The cache is bounded to 64 entries / 64 MiB and refreshes on a timer while arrangement or the inspector is visible. It clears when disabled.
 
+In **Settings → General**, turn off **Show grid overlay** for windows-only mode. Canopy resizes and positions native app windows without a persistent backdrop, split handles, miniature cards, or pane tab strips. Small slots stay native and respect app minimum sizes where possible; windows can overlap neighboring slots. Inactive grids remain ordinary windows behind the selected apps instead of being covered by Canopy’s backdrop. Docking previews and Overview remain available when requested.
+
+Set **Grid selector** to **Top**, **Bottom**, or **Hidden**. Top and Bottom reserve space at the selected edge of each monitor’s usable area, clear of its menu bar and visible Dock. Hidden gives that space back to your apps. The selector is independent of the grid overlay, and keyboard shortcuts and the menu-bar workspace list still switch grids when it is hidden. Both settings save automatically, including when changed in the demo.
+
 Settings also includes configurable global shortcuts, docking modifiers, tab strips, animation, native-size thresholds, exclusions, launch at login, workspace import/export, backup/reset, and interrupted-session recovery. Launch at login uses SMAppService and can require approval in Login Items.
 
 ## Default keyboard shortcuts

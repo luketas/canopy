@@ -65,7 +65,7 @@ extension WorkspaceStore {
 
     private func saveShortcutChanges() {
         shortcutConfigurationError = nil
-        persistShortcutPreferences()
+        persistPreferences()
         onPreferencesChanged?()
         // Keyboard preferences never change window geometry or stacking.
     }
