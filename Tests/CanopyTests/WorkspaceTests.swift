@@ -18,6 +18,7 @@ final class FakeWindows: WindowManaging {
     var raised: [String] = []
     var activated: [String] = []
     var restoreFailures: Set<String> = []
+    var restoreBounds: [LayoutRect]?
     var permissionRequests = 0
     var runningBundleIDs: Set<String> = ["fixture.a","fixture.b","fixture.c"]
     var minimizeRequests: [(String,Bool)] = []
@@ -73,7 +74,9 @@ final class FakeWindows: WindowManaging {
     }
     func restore(_ records: [WindowRecord]) -> Set<String> {
         restores.append(contentsOf: records.map(\.id))
-        for record in records where !restoreFailures.contains(record.id) { frames[record.id] = record.originalFrame }
+        for record in records where !restoreFailures.contains(record.id) {
+            frames[record.id] = restoreBounds.map { WindowBridge.visibleFrame(record.originalFrame,on: $0) } ?? record.originalFrame
+        }
         return restoreFailures.intersection(records.map(\.id)).union(Set(records.map(\.id)).subtracting(windows.keys))
     }
 }

@@ -74,7 +74,7 @@ private struct MenuContent: View {
             }
         }
         Button("Show Everything") { store.showEverything() }
-        Button("Auto Layout Current Monitor") { store.performCommand("auto-layout") }
+        Button(store.autoLayoutWillRestore ? "Restore Windows" : "Auto Layout Current Monitor") { store.performCommand("auto-layout") }
         Button("Desktop") { store.focusDesktop() }
         Button("Zoomable Overview") { store.onRequestCamera?() }.disabled(!store.isArranging)
         Button("Step Out") { store.zoomOut() }

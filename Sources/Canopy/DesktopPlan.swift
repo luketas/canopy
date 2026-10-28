@@ -64,9 +64,7 @@ extension WorkspaceStore {
         case "zoom-out": zoomOut()
         case "zoom-in": focusTowardPointer()
         case "frame": frameFocusedWindow()
-        case "auto-layout":
-            if isDemo { useRealWindows() }
-            if !isDemo { autoLayoutCurrentMonitor() }
+        case "auto-layout": toggleAutoLayout()
         case "workspace-previous": cycleWorkspace(-1)
         case "workspace-next": cycleWorkspace(1)
         case "previous": selectNeighbor(-1)

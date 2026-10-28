@@ -216,6 +216,7 @@ final class WorkspaceStore: ObservableObject {
     var isFixtureTesting: Bool { (bridge as? WindowBridge)?.allowedBundles != nil }
     var canRedo: Bool { !redoStack.isEmpty }
     var hasWindowsToRestore: Bool { !movedWindows.isEmpty || !managerMinimized.isEmpty }
+    var autoLayoutWillRestore: Bool { !isDemo && (isArranging || hasWindowsToRestore) }
     static func isDesktop(_ key: String) -> Bool { key.hasPrefix("desktop:") }
     var availableRecords: [WindowRecord] { listedRecords }
     func isAlwaysFloating(_ key: String) -> Bool {
@@ -476,6 +477,14 @@ final class WorkspaceStore: ObservableObject {
         if isDemo { return displays }
         let ids = Set(screenProvider().map(\.id))
         return displays.filter { ids.contains($0.id) }
+    }
+
+    func toggleAutoLayout() {
+        // Use the same restoration and overlay cleanup as Restore Windows.
+        // Pending restoration also counts as on, even after arranging pauses.
+        if autoLayoutWillRestore { floatAll(); return }
+        if isDemo { useRealWindows() }
+        if !isDemo { autoLayoutCurrentMonitor() }
     }
 
     func autoLayoutCurrentMonitor() {

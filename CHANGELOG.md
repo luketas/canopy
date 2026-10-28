@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.10.2 — 2026-10-28
+
+Make Control–Option–A (and customized Auto Layout bindings) toggle between arranging the current monitor and the exact Restore Windows path. Release all managed windows and desktop controls when active, paused with managed windows, or retrying incomplete restoration. Keep saved grids, cancel pending layout/workspace work, and stay off through subsequent refreshes and display changes. The menu-bar action reflects the next operation.
+
+Handle Carbon and AppKit key release so holding the toggle cannot repeatedly arrange and restore windows; preserve repeat for navigation shortcuts. Exercise release after a simulated external-display disconnect and verify restoration frames clamp into the remaining monitor.
+
 ## 0.10.1 — 2026-10-27
 
 Make Settings visible in the main window footer and next to Edit Grids on the desktop grid selector, with labeled gear buttons. Open keyboard configuration directly from Shortcuts, preserve gesture help in the sidebar, and bring Settings and Keyboard Shortcuts near the top of the menu-bar menu. Support Command–Comma from the workspace window.

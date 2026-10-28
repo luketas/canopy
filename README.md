@@ -58,7 +58,7 @@ Drag a seam to resize both sides. Native resize writes run on a background worke
 
 ## Get started
 
-Canopy is in early development. **macOS 14+**, **Swift 6**, and Xcode Command Line Tools are required. Apple silicon and Intel builds are supported. The current version is **0.10.1**; public Developer ID signing and notarization are not yet provided.
+Canopy is in early development. **macOS 14+**, **Swift 6**, and Xcode Command Line Tools are required. Apple silicon and Intel builds are supported. The current version is **0.10.2**; public Developer ID signing and notarization are not yet provided.
 
 ### Build on your Mac
 
@@ -93,11 +93,13 @@ Prefer ordinary windows without the persistent grid? In **Settings → General**
 
 ## Keep your hands on the keyboard
 
-Press **Control–Option–A** to arrange the visible, unminimized windows on the monitor under your pointer. Two windows get equal side-by-side columns; four get a 2×2 grid. Other counts use balanced columns. This updates that monitor’s current grid and leaves other monitors and grid tabs alone. Fullscreen windows, inactive Canopy grid windows, and windows on other macOS Desktops are skipped. Change the shortcut in Settings.
+Press **Control–Option–A** to toggle auto layout. When off, it arranges the visible, unminimized windows on the monitor under your pointer. Press it again to run **Restore Windows**: release all managed windows and remove the desktop grid controls. Press once more to arrange again. Saved grids stay available.
+
+When arranging, two windows get equal side-by-side columns; four get a 2×2 grid. Other counts use balanced columns. Arranging updates that monitor’s current grid and leaves other monitors and grid tabs alone. Fullscreen windows, inactive Canopy grid windows, and windows on other macOS Desktops are skipped. Restoring releases all managed monitors, including after disconnecting a display. Change the shortcut in Settings.
 
 | Action | Default shortcut |
 | --- | --- |
-| Auto layout on current monitor | ⌃ ⌥ A |
+| Auto layout / Restore Windows | ⌃ ⌥ A |
 | Next / previous workspace | ⌥ Tab / ⇧ ⌥ Tab |
 | Workspace 1–9 | ⌃ ⌥ ⌘ 1–9 |
 | Previous / next pane | ⌃ ⌥ ← / → |

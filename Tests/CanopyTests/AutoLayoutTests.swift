@@ -40,7 +40,7 @@ func autoLayoutMakesTwoEqualColumnsAndFourEqualQuadrants(count: Int,width: Doubl
 }
 
 @Test @MainActor
-func autoLayoutTargetsPointerMonitorAndLeavesExistingOtherMonitorUntouched() throws {
+func explicitAutoLayoutCanArrangeAnAdditionalMonitorWithoutChangingExistingOnes() throws {
     let bridge = FakeWindows()
     let left = DisplayDescriptor(id: "left",name: "Left",frame: LayoutRect(x: -1440,y: -150,width: 1440,height: 1000))
     let right = fixtureDisplays[0]
@@ -56,10 +56,10 @@ func autoLayoutTargetsPointerMonitorAndLeavesExistingOtherMonitorUntouched() thr
     bridge.frames["c"] = LayoutRect(x: 150,y: 120,width: 600,height: 500)
     let otherFrame = bridge.frames["c"]
     bridge.moves = []; bridge.raised = []; bridge.restores = []; bridge.minimizeRequests = []
-    bridge.focused = "c"; store.selectedDisplay = right.id
+    bridge.focused = "c"; store.selectedDisplay = left.id
     var scopes: [String?] = []
     store.onLayoutWillApply = { _ in scopes.append(store.layoutDisplayScope) }
-    store.performCommand("auto-layout",at: CGPoint(x: -500,y: 300))
+    store.autoLayoutCurrentMonitor()
     #expect(store.selectedDisplay == left.id)
     #expect(Set(store.currentGridWindowIDs) == ["a","b"])
     #expect(store.displays[0] == other)
@@ -148,7 +148,7 @@ func rejectedAutoLayoutRestoresOnlyItsMonitor() async throws {
     let other = store.displays[0],otherFrame = bridge.frames["c"]
     bridge.moves = []; bridge.restores = []; bridge.raised = []
     bridge.deferMoves = true
-    store.performCommand("auto-layout",at: CGPoint(x: -500,y: 300))
+    store.selectedDisplay = left.id; store.autoLayoutCurrentMonitor()
     let deadline = Date().addingTimeInterval(5)
     while store.message?.contains("Auto Layout paused") != true,Date() < deadline {
         try await Task.sleep(nanoseconds: 20_000_000)

@@ -23,7 +23,7 @@ struct ShortcutBinding: Codable, Equatable, Identifiable {
         case "zoom-out": return "Step out"
         case "zoom-in": return "Step toward pointer"
         case "frame": return "Frame focused window"
-        case "auto-layout": return "Auto Layout Current Monitor"
+        case "auto-layout": return "Auto Layout / Restore Windows"
         case "workspace-previous": return "Previous workspace"
         case "workspace-next": return "Next workspace"
         case "previous": return "Previous pane"

@@ -18,11 +18,13 @@ The demo does not move real windows or overwrite the real workspace. Click **Use
 
 Use the app bundle for permission identity and URL registration. Ad-hoc signatures change when code is rebuilt, so macOS may require re-enabling Accessibility. Public distribution uses Developer ID signing and notarization; local builds use `CANOPY_SIGNING_IDENTITY` or the ignored `.canopy-signing-identity` file when configured, otherwise an ad-hoc signature.
 
-## Quick auto layout
+## Toggle auto layout
 
-Press **Control–Option–A** (or choose **Auto Layout Current Monitor** in the menu bar) with your pointer on the monitor you want to arrange. Canopy uses that monitor’s current Desktop windows: one fills the usable area, two divide it side by side, three use two columns with one stacked pair, and four form a 2×2 grid. Larger sets use balanced columns. Gaps and the workspace tab strip stay clear of app content.
+Press **Control–Option–A** with your pointer on the monitor you want to arrange. Press it again to run **Restore Windows**, releasing all managed windows and removing the desktop grid controls. Press once more to arrange again. The menu-bar action changes between **Auto Layout Current Monitor** and **Restore Windows** to show what happens next. Canopy uses that monitor’s current Desktop windows: one fills the usable area, two divide it side by side, three use two columns with one stacked pair, and four form a 2×2 grid. Larger sets use balanced columns. Gaps and the workspace tab strip stay clear of app content.
 
-The action updates the current grid on that monitor and supports Undo. Other grid tabs and monitors stay intact. Minimized, fullscreen, excluded, inactive-grid, and other-Desktop windows are skipped. A window crossing monitor boundaries belongs to the monitor containing most of its area. If the panes cannot meet native minimum sizes, the action leaves the windows alone. An app that rejects placement pauses only the target monitor. The global shortcut is configurable in Settings; an existing conflicting custom binding is preserved.
+Turning auto layout on updates the current grid on that monitor and supports Undo. Other grid tabs and monitors stay intact. Minimized, fullscreen, excluded, inactive-grid, and other-Desktop windows are skipped. A window crossing monitor boundaries belongs to the monitor containing most of its area. If the panes cannot meet native minimum sizes, the action leaves the windows alone. An app that rejects placement pauses only the target monitor. The global shortcut is configurable in Settings; an existing conflicting custom binding is preserved.
+
+The off action has the same scope as the Restore Windows button: it releases every monitor Canopy is managing, preserves saved grid tabs, and stays off during later window/display updates. It also works after a layout pauses. If restoration fails, the next press retries restoration instead of arranging again. After a monitor disconnect, restored frames are clamped into the remaining displays’ usable areas. Holding the shortcut fires once; release and press again to toggle. Custom bindings for Auto Layout use this same behavior.
 
 ## Workspace grid tabs
 
@@ -81,7 +83,7 @@ Settings also includes configurable global shortcuts, docking modifiers, tab str
 
 | Action | Shortcut |
 | --- | --- |
-| Auto layout current monitor | Control + Option + A |
+| Auto layout / Restore Windows | Control + Option + A |
 | Previous / next workspace | Option + Shift + Tab / Option + Tab |
 | Workspace 1–9 in tab order | Control + Option + Command + number |
 | Everything | Control + Option + Space |

@@ -2,6 +2,21 @@ import AppKit
 import Carbon
 import Foundation
 
+/// Merge Carbon/AppKit delivery and keep toggle actions to one press per hold.
+struct HotKeyDispatchState {
+    private var lastEvents: [UInt32:TimeInterval] = [:]
+    private var pressed = Set<UInt32>()
+    mutating func shouldFire(_ id: UInt32,time: TimeInterval,repeats: Bool,isRepeat: Bool = false) -> Bool {
+        if let previous = lastEvents[id],abs(time-previous) < 0.01 { return false }
+        if !repeats {
+            guard !isRepeat,pressed.insert(id).inserted else { return false }
+        }
+        lastEvents[id] = time
+        return true
+    }
+    mutating func release(_ id: UInt32) { pressed.remove(id) }
+}
+
 @MainActor
 final class HotKeys {
     private var references: [EventHotKeyRef] = []
@@ -12,7 +27,7 @@ final class HotKeys {
     private var failures: [String] = []
     private var localMonitor: Any?
     private var globalMonitor: Any?
-    private var lastEvents: [UInt32:TimeInterval] = [:]
+    private var dispatchState = HotKeyDispatchState()
 
     init(store: WorkspaceStore) {
         let callback: EventHandlerUPP = { _, event, context in
@@ -23,27 +38,39 @@ final class HotKeys {
             guard result == noErr else { return result }
             let manager = Unmanaged<HotKeys>.fromOpaque(context).takeUnretainedValue()
             let actionID = id.id,time = GetEventTime(event)
-            Task { @MainActor in manager.fire(actionID,time: time) }
+            let released = GetEventKind(event) == UInt32(kEventHotKeyReleased)
+            Task { @MainActor in
+                if released { manager.dispatchState.release(actionID) }
+                else { manager.fire(actionID,time: time) }
+            }
             return noErr
         }
-        var eventType = EventTypeSpec(eventClass: OSType(kEventClassKeyboard), eventKind: UInt32(kEventHotKeyPressed))
-        InstallEventHandler(GetApplicationEventTarget(), callback, 1, &eventType,
-                            Unmanaged.passUnretained(self).toOpaque(), &handler)
+        let eventTypes = [kEventHotKeyPressed,kEventHotKeyReleased].map {
+            EventTypeSpec(eventClass: OSType(kEventClassKeyboard),eventKind: UInt32($0))
+        }
+        _ = eventTypes.withUnsafeBufferPointer { types in
+            InstallEventHandler(GetApplicationEventTarget(),callback,types.count,types.baseAddress,
+                                Unmanaged.passUnretained(self).toOpaque(),&handler)
+        }
         // Carbon handles physical global hotkeys. AppKit also covers directly
         // delivered key events and keeps shortcuts usable in accessory windows.
         // Never consume a recorder's event, or a chord another app registered.
-        localMonitor = NSEvent.addLocalMonitorForEvents(matching: .keyDown) { [weak self] event in
+        localMonitor = NSEvent.addLocalMonitorForEvents(matching: [.keyDown,.keyUp]) { [weak self] event in
             let handled = MainActor.assumeIsolated {
                 if let recorder = NSApp.keyWindow?.firstResponder as? RecorderButton,recorder.recording { return false }
-                guard let self,let id = self.match(event) else { return false }
-                self.fire(id,time: event.timestamp); return true
+                guard let self else { return false }
+                if event.type == .keyUp { self.release(keyCode: event.keyCode); return false }
+                guard let id = self.match(event) else { return false }
+                self.fire(id,time: event.timestamp,isRepeat: event.isARepeat); return true
             }
             return handled ? nil : event
         }
-        globalMonitor = NSEvent.addGlobalMonitorForEvents(matching: .keyDown) { [weak self] event in
+        globalMonitor = NSEvent.addGlobalMonitorForEvents(matching: [.keyDown,.keyUp]) { [weak self] event in
             MainActor.assumeIsolated {
-                guard let self,let id = self.match(event) else { return }
-                self.fire(id,time: event.timestamp)
+                guard let self else { return }
+                if event.type == .keyUp { self.release(keyCode: event.keyCode); return }
+                guard let id = self.match(event) else { return }
+                self.fire(id,time: event.timestamp,isRepeat: event.isARepeat)
             }
         }
         configure(store: store)
@@ -51,18 +78,20 @@ final class HotKeys {
     private func match(_ event: NSEvent) -> UInt32? {
         registered.first { $0.0.matches(keyCode: event.keyCode,flags: event.modifierFlags) }?.1
     }
-    private func fire(_ id: UInt32,time: TimeInterval) {
-        // Carbon and AppKit can observe the same physical event. Timestamp
-        // deduplication preserves real key repeat without switching twice.
-        if let previous = lastEvents[id],abs(time-previous) < 0.01 { return }
-        lastEvents[id] = time
+    private func release(keyCode: UInt16) {
+        // Modifiers may be released before the letter key.
+        for (binding,id) in registered where binding.keyCode == UInt32(keyCode) { dispatchState.release(id) }
+    }
+    private func fire(_ id: UInt32,time: TimeInterval,isRepeat: Bool = false) {
+        guard let binding = registered.first(where: { $0.1 == id })?.0,
+              dispatchState.shouldFire(id,time: time,repeats: binding.id != "auto-layout",isRepeat: isRepeat) else { return }
         actions[id]?()
     }
     func configure(store: WorkspaceStore) {
         for reference in references { UnregisterEventHotKey(reference) }
         // Keep IDs unique across configurations so a queued Carbon callback
         // cannot invoke a different action after editing a shortcut.
-        references = []; actions = [:]; registered = []; failures = []; lastEvents = [:]
+        references = []; actions = [:]; registered = []; failures = []; dispatchState = HotKeyDispatchState()
         guard store.recordingShortcutID == nil else { return }
         for binding in store.preferences.shortcuts where binding.enabled {
             register(binding) { [weak store] in store?.performCommand(binding.id) }
@@ -79,7 +108,7 @@ final class HotKeys {
     }
     func stop() {
         for reference in references { UnregisterEventHotKey(reference) }
-        references = []; registered = []; actions = [:]
+        references = []; registered = []; actions = [:]; dispatchState = HotKeyDispatchState()
         if let handler { RemoveEventHandler(handler); self.handler = nil }
         if let localMonitor { NSEvent.removeMonitor(localMonitor); self.localMonitor = nil }
         if let globalMonitor { NSEvent.removeMonitor(globalMonitor); self.globalMonitor = nil }

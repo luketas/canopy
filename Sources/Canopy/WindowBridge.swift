@@ -532,7 +532,9 @@ final class WindowBridge: WindowManaging {
 
     /// A disconnected monitor must never strand a restored window offscreen.
     func visibleFrame(_ rect: LayoutRect) -> LayoutRect {
-        let screens = NSScreen.screens.map(Self.usableFrame)
+        Self.visibleFrame(rect,on: NSScreen.screens.map(Self.usableFrame))
+    }
+    static func visibleFrame(_ rect: LayoutRect,on screens: [LayoutRect]) -> LayoutRect {
         guard let screen = screens.first(where: {
             rect.midX >= $0.x && rect.midX <= $0.x + $0.width && rect.midY >= $0.y && rect.midY <= $0.y + $0.height
         }) ?? screens.first else { return rect }
